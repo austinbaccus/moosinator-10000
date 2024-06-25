@@ -2,7 +2,6 @@ import cv2, queue, threading
 from PIL import Image
 
 class Camera:
-
     def __init__(self):
         self.cap = cv2.VideoCapture(0)
         self.q = queue.Queue()
