@@ -6,9 +6,9 @@ import time
 GPIO.setmode(GPIO.BOARD)
 
 # Set pins 11 & 12 as outputs, and define as PWM servo1 & servo2
-GPIO.setup(11,GPIO.OUT)
-servo1 = GPIO.PWM(12,50) # pin 11 for servo1
 GPIO.setup(12,GPIO.OUT)
+servo1 = GPIO.PWM(12,50) # pin 11 for servo1
+GPIO.setup(18,GPIO.OUT)
 servo2 = GPIO.PWM(18,50) # pin 12 for servo2
 
 # Start PWM running on both servos, value of 0 (pulse off)
