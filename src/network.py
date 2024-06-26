@@ -15,7 +15,6 @@ class MQTTClient:
         self.client.on_message = self.on_message
 
         # Connect to the broker
-        print("connecting to broker...")
         self.client.connect(self.broker, self.broker_port, 60)
 
     def start(self):
