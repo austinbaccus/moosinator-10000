@@ -4,7 +4,7 @@ import time
 
 def main():
     camera = Camera()
-    camera.start()
+    #camera.start()
 
     mqtt_topic_send = "moosinator/windows"
     mqtt_topic_receive = "moosinator/pi"

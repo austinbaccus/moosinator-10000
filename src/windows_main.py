@@ -7,7 +7,7 @@ import base64
 import time
 import numpy as np
 
-camera = Camera()
+#camera = Camera()
 ai = AI()
 
 mqtt_topic_send = "moosinator/pi"
@@ -23,7 +23,7 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     # Decode image
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # Display the image
-    cv2.imshow('Received Image', image)
+    cv2.imshow('Moosinator Cam', image)
     cv2.waitKey(1)  # Display the image for 1 millisecond
 
 def show_camera_stream_frame(camera, ai):
@@ -80,7 +80,7 @@ def print_data(object_detection_results, labels):
         )
 
 def main():
-    client.on_message = analyze_photo_data_from_pi
+    client.client.on_message = analyze_photo_data_from_pi
     client.start()
 
     try:
