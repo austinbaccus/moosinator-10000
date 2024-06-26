@@ -24,7 +24,9 @@ class MQTTClient:
         self.client.publish(topic, message)
 
     def on_message(self, client, userdata, message):
-        print(f"Message received: {message.payload.decode()} on topic {message.topic}")
+        msg1 = message.payload.decode()
+        msg2 = message.topic
+        print(f"Message received: {msg1} on topic {msg2}")
 
     def on_connect(self, client, userdata, flags, rc):
         print(f"Connected with result code {rc}")
