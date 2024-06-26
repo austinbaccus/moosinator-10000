@@ -5,7 +5,7 @@ import time
 # Set GPIO numbering mode
 GPIO.setmode(GPIO.BOARD)
 
-# Set pins 11 & 12 as outputs, and define as PWM servo1 & servo2
+# Set pins 12 & 18 as outputs, and define as PWM servo1 & servo2
 GPIO.setup(12,GPIO.OUT)
 servo1 = GPIO.PWM(12,50) # pin 11 for servo1
 GPIO.setup(18,GPIO.OUT)

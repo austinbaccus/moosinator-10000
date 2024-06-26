@@ -1,34 +1,44 @@
 import cv2
-from camera import Camera
-from ai import AI
+#from camera import Camera
+from network import MQTTClient
+#from ai import AI
+import time
 
 def main():
-    camera = Camera()
-    ai = AI()
+    #camera = Camera()
+    #ai = AI()
 
-    while True:
-        # image
-        frame = camera.read()
-        image = camera.convert_to_pil(frame)
+    mqtt_topic_send = "moosinator/windows"
+    mqtt_topic_receive = "moosinator/pi"
+    client = MQTTClient("raspberry_pi_client", '192.168.0.45', 1883, mqtt_topic_receive)
 
-        # depth
-        #frame = ai.get_depth(image, None)
+    try:
+        while True:
+            time.sleep(5)
+            client.publish(mqtt_topic_send, "Hello from Windows!")
+    except KeyboardInterrupt:
+        print("Disconnecting...")
+        client.disconnect()
 
-        # object detection
-        object_detection_results = ai.get_objects(image)
+def show_camera_stream_frame(camera, ai):
+    # image
+    frame = camera.read()
+    image = camera.convert_to_pil(frame)
 
-        # boxes
-        boxes = get_boxes(frame, object_detection_results, ai.object_detection_model.config.id2label)
+    # depth
+    #frame = ai.get_depth(image, None)
 
-        # print data to console
-        print_data(object_detection_results, ai.object_detection_model.config.id2label)
+    # object detection
+    object_detection_results = ai.get_objects(image)
 
-        # draw
-        cv2.imshow("Moose Cam", boxes)
+    # boxes
+    boxes = get_boxes(frame, object_detection_results, ai.object_detection_model.config.id2label)
 
-        # Break the loop on 'q' key press
-        if cv2.waitKey(1) == ord('q'):
-            break
+    # print data to console
+    print_data(object_detection_results, ai.object_detection_model.config.id2label)
+
+    # draw
+    cv2.imshow("Moose Cam", boxes)
 
 def get_boxes(image, object_detection_results, labels):
     for score, label, box in zip(object_detection_results["scores"], object_detection_results["labels"], object_detection_results["boxes"]):
