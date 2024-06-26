@@ -8,9 +8,10 @@ def main():
     #camera = Camera()
     #ai = AI()
 
-    mqtt_topic_send = "moosinator/windows"
-    mqtt_topic_receive = "moosinator/pi"
+    mqtt_topic_send = "moosinator/pi"
+    mqtt_topic_receive = "moosinator/windows"
     client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
+    client.start()
 
     try:
         while True:

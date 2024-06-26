@@ -10,6 +10,7 @@ def main():
     mqtt_topic_receive = "moosinator/pi"
 
     client = MQTTClient("raspberry_pi_client", '192.168.0.45', 1883, mqtt_topic_receive)
+    client.start()
 
     try:
         while True:
