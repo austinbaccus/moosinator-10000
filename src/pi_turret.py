@@ -1,6 +1,11 @@
 import RPi.GPIO as GPIO
 import time
 
+# https://www.explainingcomputers.com/sample_code/Servo_Test_BB_No_Jitter.py
+# https://www.explainingcomputers.com/sample_code/Servo_Test_CC_Go_to_Angle.py
+# https://www.explainingcomputers.com/sample_code/Servo_Test_DD_Two_Servos.py
+
+
 # Set GPIO numbering mode
 GPIO.setmode(GPIO.BOARD)
 

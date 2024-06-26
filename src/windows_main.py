@@ -2,7 +2,7 @@ import cv2
 from windows_camera import Camera
 from network import MQTTClient
 from windows_ai import AI
-import io
+from PIL import Image
 import base64
 import time
 import numpy as np
@@ -15,15 +15,32 @@ mqtt_topic_receive = "moosinator/windows"
 client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
 
 def analyze_photo_data_from_pi(client, userdata, msg):
-    print(f"Message received on topic {msg.topic}")
-    # Decode the base64 string back to bytes
+    # decode the base64 string back to bytes
     image_data = base64.b64decode(msg.payload)
-    # Convert bytes to numpy array
+
+    print(type(image_data))
+    base64_length = len(image_data)
+    #padding = image_data.count('=')
+    size_in_bytes = (base64_length * 3) // 4# - padding
+    print(f"Message received on topic {msg.topic} [{size_in_bytes} MB]")
+
+    # convert bytes to numpy array
     nparr = np.frombuffer(image_data, np.uint8)
-    # Decode image
-    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    # decode image
+    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    image = Image.fromarray(frame)
+
+    # depth
+    #frame = ai.get_depth(image, None)
+
+    # get object detection results
+    object_detection_results = ai.get_objects(image)
+
+    # draw boxes
+    boxes = get_boxes(frame, object_detection_results, ai.object_detection_model.config.id2label)
+
     # Display the image
-    cv2.imshow('Moosinator Cam', image)
+    cv2.imshow('Moosinator Cam', boxes)
     cv2.waitKey(1)  # Display the image for 1 millisecond
 
 def show_camera_stream_frame(camera, ai):

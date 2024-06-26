@@ -9,6 +9,7 @@ class Camera:
 
     def start(self):
         self.camera.start_preview()
+        print(self.camera.resolution)
 
     def capture_image_base64(self):
         # Create an in-memory stream
