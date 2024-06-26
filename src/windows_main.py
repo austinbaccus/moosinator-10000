@@ -1,25 +1,30 @@
 import cv2
-#from windows_camera import Camera
+from windows_camera import Camera
 from network import MQTTClient
-#from windows_ai import AI
+from windows_ai import AI
+import io
+import base64
 import time
+import numpy as np
 
-def main():
-    #camera = Camera()
-    #ai = AI()
+camera = Camera()
+ai = AI()
 
-    mqtt_topic_send = "moosinator/pi"
-    mqtt_topic_receive = "moosinator/windows"
-    client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
-    client.start()
+mqtt_topic_send = "moosinator/pi"
+mqtt_topic_receive = "moosinator/windows"
+client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
 
-    try:
-        while True:
-            time.sleep(5)
-            client.publish(mqtt_topic_send, "Hello from Windows!")
-    except KeyboardInterrupt:
-        print("Disconnecting...")
-        client.disconnect()
+def analyze_photo_data_from_pi(client, userdata, msg):
+    print(f"Message received on topic {msg.topic}")
+    # Decode the base64 string back to bytes
+    image_data = base64.b64decode(msg.payload)
+    # Convert bytes to numpy array
+    nparr = np.frombuffer(image_data, np.uint8)
+    # Decode image
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    # Display the image
+    cv2.imshow('Received Image', image)
+    cv2.waitKey(1)  # Display the image for 1 millisecond
 
 def show_camera_stream_frame(camera, ai):
     # image
@@ -73,5 +78,17 @@ def print_data(object_detection_results, labels):
             f"Detected {labels[label.item()]} with confidence "
             f"{round(score.item(), 3)} at location {box}"
         )
+
+def main():
+    client.on_message = analyze_photo_data_from_pi
+    client.start()
+
+    try:
+        while True:
+            time.sleep(5)
+            client.publish(mqtt_topic_send, "Some command...")
+    except KeyboardInterrupt:
+        client.disconnect()
+        cv2.destroyAllWindows()
 
 main()

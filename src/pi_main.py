@@ -13,11 +13,8 @@ def main():
 
     try:
         while True:
-            time.sleep(5)
-            client.publish(mqtt_topic_send, "Hello from Pi!")
             client.publish(mqtt_topic_send, camera.capture_image_base64())
     except KeyboardInterrupt:
-        print("Disconnecting...")
         client.disconnect()
 
 main()
