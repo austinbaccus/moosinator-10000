@@ -1,4 +1,4 @@
-from camera import Camera
+from pi_camera import Camera
 from network import MQTTClient
 import time
 

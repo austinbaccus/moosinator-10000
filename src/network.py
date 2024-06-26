@@ -17,10 +17,6 @@ class MQTTClient:
         # Connect to the broker
         self.client.connect(self.broker, self.broker_port, 60)
 
-    def __del__(self):
-        self.client.loop_stop()
-        self.client.disconnect()
-
     def start(self):
         self.client.loop_start()
 

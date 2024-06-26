@@ -1,7 +1,7 @@
 import cv2
-#from camera import Camera
+#from windows_camera import Camera
 from network import MQTTClient
-#from ai import AI
+#from windows_ai import AI
 import time
 
 def main():
@@ -10,7 +10,7 @@ def main():
 
     mqtt_topic_send = "moosinator/windows"
     mqtt_topic_receive = "moosinator/pi"
-    client = MQTTClient("raspberry_pi_client", '192.168.0.45', 1883, mqtt_topic_receive)
+    client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
 
     try:
         while True:
