@@ -16,35 +16,43 @@ client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
 
 start = time.time()
 
+frames = 0
+frames_total = 0
+
 def analyze_photo_data_from_pi(client, userdata, msg):
-    # decode the base64 string back to bytes
-    image_data = base64.b64decode(msg.payload)
-    base64_length = len(image_data)
-    #padding = image_data.count('=')
-    size_in_bytes = (base64_length * 3) // 4# - padding
-    global start
-    time_elapsed = time.time() - start
-    print(f"Message received on topic {msg.topic} [{int(size_in_bytes/1024)} KB] [{int(1/time_elapsed)} FPS]")
-    start = time.time()
+    global frames
+    if (frames % 2 == 0):
+        # decode the base64 string back to bytes
+        image_data = base64.b64decode(msg.payload)
+        base64_length = len(image_data)
+        #padding = image_data.count('=')
+        size_in_bytes = (base64_length * 3) // 4# - padding
+        global start
+        time_elapsed = time.time() - start
+        print(f"Message received on topic {msg.topic} [{int(size_in_bytes/1024)} KB] [{round(1/time_elapsed,1)} FPS]")
+        start = time.time()
 
-    # convert bytes to numpy array
-    nparr = np.frombuffer(image_data, np.uint8)
-    # decode image
-    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    image = Image.fromarray(frame)
+        # convert bytes to numpy array
+        nparr = np.frombuffer(image_data, np.uint8)
+        # decode image
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        image = Image.fromarray(frame)
 
-    # depth
-    #frame = ai.get_depth(image, None)
+        # depth
+        #frame = ai.get_depth(image, None)
 
-    # get object detection results
-    object_detection_results = ai.get_objects(image)
+        # get object detection results
+        object_detection_results = ai.get_objects(image)
 
-    # draw boxes
-    boxes = get_boxes(frame, object_detection_results, ai.object_detection_model.config.id2label)
+        # draw boxes
+        boxes = get_boxes(frame, object_detection_results, ai.object_detection_model.config.id2label)
 
-    # Display the image
-    cv2.imshow('Moosinator Cam', boxes)
-    #cv2.waitKey(1) # Display the image for 1 millisecond
+        cv2.imshow('Moosinator Cam', boxes) # Display the image
+        cv2.waitKey(1) # Display the image for 1 millisecond
+    else:
+        pass
+
+    frames = frames + 1
 
 def show_camera_stream_frame(camera, ai):
     # image
