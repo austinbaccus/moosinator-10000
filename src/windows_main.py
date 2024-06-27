@@ -44,7 +44,7 @@ def analyze_photo_data_from_pi(client, userdata, msg):
 
     # Display the image
     cv2.imshow('Moosinator Cam', boxes)
-    cv2.waitKey(1) # Display the image for 1 millisecond
+    #cv2.waitKey(1) # Display the image for 1 millisecond
 
 def show_camera_stream_frame(camera, ai):
     # image
