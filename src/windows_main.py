@@ -14,15 +14,18 @@ mqtt_topic_send = "moosinator/pi"
 mqtt_topic_receive = "moosinator/windows"
 client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
 
+start = time.time()
+
 def analyze_photo_data_from_pi(client, userdata, msg):
     # decode the base64 string back to bytes
     image_data = base64.b64decode(msg.payload)
-
-    print(type(image_data))
     base64_length = len(image_data)
     #padding = image_data.count('=')
     size_in_bytes = (base64_length * 3) // 4# - padding
-    print(f"Message received on topic {msg.topic} [{size_in_bytes} MB]")
+    global start
+    time_elapsed = time.time() - start
+    print(f"Message received on topic {msg.topic} [{int(size_in_bytes/1024)} KB] [{int(1/time_elapsed)} FPS]")
+    start = time.time()
 
     # convert bytes to numpy array
     nparr = np.frombuffer(image_data, np.uint8)
@@ -41,7 +44,7 @@ def analyze_photo_data_from_pi(client, userdata, msg):
 
     # Display the image
     cv2.imshow('Moosinator Cam', boxes)
-    cv2.waitKey(1)  # Display the image for 1 millisecond
+    cv2.waitKey(1) # Display the image for 1 millisecond
 
 def show_camera_stream_frame(camera, ai):
     # image
