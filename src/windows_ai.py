@@ -1,76 +1,51 @@
-import cv2
-import numpy as np
-from transformers import AutoImageProcessor, DeformableDetrForObjectDetection, GLPNImageProcessor, GLPNForDepthEstimation
+from transformers import DetrImageProcessor, DetrForObjectDetection
 import torch
-from PIL import Image
+import cv2
 
-class AI:
+class AI_Facebook:
     def __init__(self):
-        print(f"Is CUDA supported by this system? {torch.cuda.is_available()}")
-        print(f"CUDA version: {torch.version.cuda}")
-        cuda_id = torch.cuda.current_device()
-        print(f"ID of current CUDA device: {torch.cuda.current_device()}")
-        print(f"Name of current CUDA device: {torch.cuda.get_device_name(cuda_id)}")
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-        self.init_object_detection()
-        self.init_depth()
-
-        # color
+        self.processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
+        self.model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
+        self.model.to(self.device)
     
-    def init_object_detection(self):
-        self.object_detection_processor = AutoImageProcessor.from_pretrained("SenseTime/deformable-detr-with-box-refine")
-        self.object_detection_model = DeformableDetrForObjectDetection.from_pretrained("SenseTime/deformable-detr-with-box-refine")
-        self.object_detection_model.to(self.device)
-
-    def init_depth(self):
-        self.depth_processor = GLPNImageProcessor.from_pretrained("vinvino02/glpn-kitti")
-        self.depth_model = GLPNForDepthEstimation.from_pretrained("vinvino02/glpn-kitti")
-        self.depth_model.to(self.device)
-
     def get_objects(self, image):
-        inputs = self.object_detection_processor(images=image, return_tensors="pt")
-        inputs = inputs.to(self.device)  # Move inputs to GPU or CPU device
-        outputs = self.object_detection_model(**inputs)
-
-        # convert outputs (bounding boxes and class logits) to COCO API
-        # let's only keep detections with score > 0.7
+        inputs = self.processor(images=image, return_tensors="pt")
+        inputs = inputs.to(self.device)
+        outputs = self.model(**inputs)
         target_sizes = torch.tensor([image.size[::-1]]).to(self.device)
-        results = self.object_detection_processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.7)[0]
-
+        results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.7)[0]
         return results
     
-    def get_depth(self, image, color):
-        inputs = self.depth_processor(images=image, return_tensors="pt")
-        inputs = inputs.to(self.device)  # Move inputs to GPU or CPU device
+    def draw_boxes(self, image, results):
+        for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+            box = [round(i, 2) for i in box.tolist()]
+            x1 = int(box[0])
+            y1 = int(box[1])
+            x2 = int(box[2])
+            y2 = int(box[3])
+            certainty = int((score.item())*100)
+            height, width = image.shape[:2]
+            text_x_pos = min(width, x1+10)
+            text_y_pos = max(0, y2-10)
+            text_pos = (text_x_pos, text_y_pos)
+            cv2.rectangle(img=image, pt1=(x1, y1), pt2=(x2, y2), color=(255,0,0), thickness=2)
+            cv2.putText(img=image, text=f"{certainty}% {self.ai.object_detection_model.config.id2label[label.item()]}", org=text_pos, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(0,0,255), thickness=2)
+        return image
+    
+class AI_YOLOv5:
+    def __init__(self):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s').to(self.device)
 
-        with torch.no_grad():
-            outputs = self.depth_model(**inputs)
-            predicted_depth = outputs.predicted_depth
-
-        # interpolate to original size
-        prediction = torch.nn.functional.interpolate(
-            predicted_depth.unsqueeze(1),
-            size=image.size[::-1],
-            mode="bicubic",
-            align_corners=False,
-        ).to(self.device)
-
-        # visualize the prediction
-        output = prediction.squeeze().cpu().numpy() # cpu
-        formatted = (output * 255 / np.max(output)).astype("uint8")
-        depth = Image.fromarray(formatted)
-
-        if (color == None):
-            return formatted
-        if (color == "gray"):
-            depth_array = np.array(depth)
-            depth_bgr = cv2.cvtColor(depth_array, cv2.COLORMAP_RAINBOW)
-            return depth_bgr
-        if (color == "rainbow"):
-            depth_array = np.array(depth)
-            depth_normalized = depth_array.astype(np.float32) / 255.0
-            depth_colored = cv2.applyColorMap((depth_normalized * 255).astype(np.uint8), cv2.COLORMAP_JET)
-            return depth_colored
-
-        return depth
+    def get_objects(self, image):
+        return self.model(image)
+    
+    def draw_boxes(self, image, results):
+        for det in results.xyxy[0].cpu().numpy():
+            x1, y1, x2, y2, conf, cls = det
+            label = f'{self.model.names[int(cls)]} {conf:.2f}'
+            color = (0, 255, 0)
+            cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
+            cv2.putText(image, label, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        return image
