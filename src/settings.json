@@ -1,0 +1,11 @@
+{
+    "RaspberryPiIP": "192.168.0.132",
+    "RaspberryPiPort": 1883,
+    "MqttTopicSend": "moosinator/windows",
+    "MqttTopicReceive": "moosinator/pi",
+    "TargetFPS": 15,
+    "TargetResolution": [
+        480,
+        360
+    ] 
+}

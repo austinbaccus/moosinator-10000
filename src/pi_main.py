@@ -3,10 +3,14 @@ import picamera
 import io
 import base64
 import time
+import json
 
-mqtt_topic_send = "moosinator/windows"
-mqtt_topic_receive = "moosinator/pi"
-client = MQTTClient("raspberry_pi_client", '192.168.0.45', 1883, mqtt_topic_receive)
+with open('settings.json', 'r') as file:
+    config = json.load(file)
+
+target_resolution = config["TargetResolution"]
+
+client = MQTTClient("raspberry_pi_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicReceive"])
 start = time.time()
 
 def capture_and_publish_image_stream(camera, target_fps):
@@ -29,7 +33,7 @@ def capture_and_publish_image_stream(camera, target_fps):
         else:
             time_to_wait = 0
 
-        client.publish(mqtt_topic_send, image_base64)
+        client.publish(config["MqttTopicSend"], image_base64)
         print("Message published [{} FPS] [Waited for {} seconds]".format(round(1/time_elapsed, 1), round(time_to_wait, 2)))
         start = time.time()
 
@@ -41,9 +45,9 @@ def command_received(command):
     print("command received: {}".format(command))
 
 def main():
-    resolution = (480, 360)
+    resolution = (config["TargetResolution"][0], config["TargetResolution"][1])
     with picamera.PiCamera(resolution=resolution) as camera:
-        capture_and_publish_image_stream(camera, 30)
+        capture_and_publish_image_stream(camera, config["TargetFPS"])
 
     client.client.on_message = command_received
     client.start()

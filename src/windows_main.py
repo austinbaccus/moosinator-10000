@@ -6,13 +6,17 @@ from PIL import Image
 import base64
 import time
 import numpy as np
+import json
+
+with open('settings.json', 'r') as file:
+    config = json.load(file)
 
 ai = AI_YOLOv5()
 #camera = Camera()
 
-mqtt_topic_send = "moosinator/pi"
-mqtt_topic_receive = "moosinator/windows"
-client = MQTTClient("windows_client", '192.168.0.45', 1883, mqtt_topic_receive)
+print(config["TargetResolution"])
+
+client = MQTTClient("windows_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicReceive"])
 
 start = time.time()
 time.sleep(0.1)
@@ -30,8 +34,9 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     object_detection_results = ai.get_objects(frame)
     boxes = ai.draw_boxes(frame, object_detection_results)
+    image = cv2.circle(boxes, (config["TargetResolution"][0]/2,config["TargetResolution"][1]/2), 10, (0,0,255), 2)
     
-    cv2.imshow('Moosinator Cam', boxes)
+    cv2.imshow('Moosinator Cam', image)
     cv2.waitKey(1)
 
 def analyze_photo_data_from_local_cam():
@@ -66,7 +71,7 @@ def main():
     try:
         while True:
             time.sleep(5)
-            client.publish(mqtt_topic_send, "Some command...")
+            client.publish(config["MqttTopicSend"], "Some command...")
     except KeyboardInterrupt:
         client.disconnect()
         cv2.destroyAllWindows()
