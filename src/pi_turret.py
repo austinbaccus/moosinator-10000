@@ -1,64 +1,38 @@
 import RPi.GPIO as GPIO
-import time
+from time import sleep
 
-# https://www.explainingcomputers.com/sample_code/Servo_Test_BB_No_Jitter.py
-# https://www.explainingcomputers.com/sample_code/Servo_Test_CC_Go_to_Angle.py
-# https://www.explainingcomputers.com/sample_code/Servo_Test_DD_Two_Servos.py
-
-
-# Set GPIO numbering mode
 GPIO.setmode(GPIO.BOARD)
+GPIO.setup(11, GPIO.OUT)
 
-# Set pins 12 & 18 as outputs, and define as PWM servo1 & servo2
-GPIO.setup(12,GPIO.OUT)
-servo1 = GPIO.PWM(12,50) # pin 11 for servo1
-GPIO.setup(18,GPIO.OUT)
-servo2 = GPIO.PWM(18,50) # pin 12 for servo2
+pwm=GPIO.PWM(11, 50)
+pwm.start(0)
 
-# Start PWM running on both servos, value of 0 (pulse off)
-servo1.start(0)
-servo2.start(0)
+def setAngle(angle):
+    duty = angle / 18 + 2
+    GPIO.output(11, True)
+    pwm.ChangeDutyCycle(duty)
+    sleep(1)
+    GPIO.output(11, False)
+    pwm.ChangeDutyCycle(duty)
 
-# Turn servo1 to 90
-servo1.ChangeDutyCycle(7)
-time.sleep(0.5)
-servo1.ChangeDutyCycle(0)
+count = 0
+numLoops = 2
 
-# Wait for 2 seconds
-time.sleep(2)
+while count < numLoops:
+    print("set to 0-deg")
+    setAngle(0)
+    sleep(1)
 
-# Turn servo2 to 90 & servo1 back to 0
-servo2.ChangeDutyCycle(7)
-servo1.ChangeDutyCycle(2)
-time.sleep(0.5)
-servo2.ChangeDutyCycle(0)
-servo1.ChangeDutyCycle(0)
+        
+    print("set to 15-deg")
+    setAngle(15)
+    sleep(1)
 
-# Wait again for 2 seconds! :)
-time.sleep(2)
+    print("set to 30-deg")
+    setAngle(30)
+    sleep(1)
+    
+    count=count+1
 
-# Turn servo2 to 180 & servo1 to 90
-servo2.ChangeDutyCycle(12)
-servo1.ChangeDutyCycle(7)
-time.sleep(0.5)
-servo2.ChangeDutyCycle(0)
-servo1.ChangeDutyCycle(0)
-
-# Another little 2 second pause...
-time.sleep(2)
-
-# Turn both servos back to 0
-servo2.ChangeDutyCycle(2)
-servo1.ChangeDutyCycle(2)
-time.sleep(0.5)
-servo2.ChangeDutyCycle(0)
-servo1.ChangeDutyCycle(0)
-
-time.sleep(2)
-
-#Clean things up at the end
-servo1.stop()
-servo2.stop()
+pwm.stop()
 GPIO.cleanup()
-
-print ("Goodbye")

@@ -14,8 +14,6 @@ with open('settings.json', 'r') as file:
 ai = AI_YOLOv5()
 #camera = Camera()
 
-print(config["TargetResolution"])
-
 client = MQTTClient("windows_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicWindows"])
 
 start = time.time()
@@ -34,7 +32,9 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     object_detection_results = ai.get_objects(frame)
     boxes = ai.draw_boxes(frame, object_detection_results)
-    image = cv2.circle(boxes, (config["TargetResolution"][0]/2,config["TargetResolution"][1]/2), 10, (0,0,255), 2)
+    crosshair_center_x = int((config["TargetResolution"][0])/2)
+    crosshair_center_y = int((config["TargetResolution"][1])/2)
+    image = cv2.circle(boxes, (crosshair_center_x, crosshair_center_y), 10, (0,0,255), 2)
     
     cv2.imshow('Moosinator Cam', image)
     cv2.waitKey(1)
