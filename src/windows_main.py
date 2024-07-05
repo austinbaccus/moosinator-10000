@@ -16,7 +16,7 @@ ai = AI_YOLOv5()
 
 print(config["TargetResolution"])
 
-client = MQTTClient("windows_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicReceive"])
+client = MQTTClient("windows_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicWindows"])
 
 start = time.time()
 time.sleep(0.1)
@@ -71,7 +71,7 @@ def main():
     try:
         while True:
             time.sleep(5)
-            client.publish(config["MqttTopicSend"], "Some command...")
+            client.publish(config["MqttTopicPi"], "Some command...")
     except KeyboardInterrupt:
         client.disconnect()
         cv2.destroyAllWindows()

@@ -10,7 +10,7 @@ with open('settings.json', 'r') as file:
 
 target_resolution = config["TargetResolution"]
 
-client = MQTTClient("raspberry_pi_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicReceive"])
+client = MQTTClient("raspberry_pi_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicPi"])
 start = time.time()
 
 def capture_and_publish_image_stream(camera, target_fps):
@@ -33,7 +33,7 @@ def capture_and_publish_image_stream(camera, target_fps):
         else:
             time_to_wait = 0
 
-        client.publish(config["MqttTopicSend"], image_base64)
+        client.publish(config["MqttTopicWindows"], image_base64)
         print("Message published [{} FPS] [Waited for {} seconds]".format(round(1/time_elapsed, 1), round(time_to_wait, 2)))
         start = time.time()
 
