@@ -8,8 +8,8 @@
         480,
         360
     ],
-    "RotateImage": 90,
-    "MinimumConfidence": 50,
+    "RotateIRImage": 90,
+    "MinimumConfidence": 30,
     "ValidTargetLabels": [
         "person",
         "cat"

@@ -20,9 +20,9 @@ class Targeting:
     def move_to_target(self):
         print()
 
-    def is_target_valid(self, target, config):
-        if target.certainty < config["MinimumConfidence"]:
-            return False
-        if target.label not in config["ValidTargetLabels"]:
-            return False
-        return True
+def is_target_valid(target, config):
+    if target.certainty < config["MinimumConfidence"]:
+        return False
+    if target.label not in config["ValidTargetLabels"]:
+        return False
+    return True
