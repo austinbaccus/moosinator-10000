@@ -1,5 +1,5 @@
 {
-    "RaspberryPiIP": "192.168.0.132",
+    "RaspberryPiIP": "192.168.0.131",
     "RaspberryPiPort": 1883,
     "MqttTopicWindows": "moosinator/windows",
     "MqttTopicPi": "moosinator/pi",
@@ -7,5 +7,11 @@
     "TargetResolution": [
         480,
         360
-    ] 
+    ],
+    "RotateImage": 90,
+    "MinimumConfidence": 50,
+    "ValidTargetLabels": [
+        "person",
+        "cat"
+    ]
 }

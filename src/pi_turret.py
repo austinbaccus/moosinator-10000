@@ -1,38 +1,47 @@
 import RPi.GPIO as GPIO
 from time import sleep
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(11, GPIO.OUT)
 
-pwm=GPIO.PWM(11, 50)
-pwm.start(0)
+class Turret:
+    def __init__(self):
+        self.pan_bound_min = 0
+        self.pan_bound_max = 0
+        self.tilt_bound_min = 0
+        self.tilt_bound_max = 0
 
-def setAngle(angle):
-    duty = angle / 18 + 2
-    GPIO.output(11, True)
-    pwm.ChangeDutyCycle(duty)
-    sleep(1)
-    GPIO.output(11, False)
-    pwm.ChangeDutyCycle(duty)
+    def move_to_target(self, coords):
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(11, GPIO.OUT)
 
-count = 0
-numLoops = 2
+        pwm=GPIO.PWM(11, 50)
+        pwm.start(0)
 
-while count < numLoops:
-    print("set to 0-deg")
-    setAngle(0)
-    sleep(1)
+        def setAngle(angle):
+            duty = angle / 18 + 2
+            GPIO.output(11, True)
+            pwm.ChangeDutyCycle(duty)
+            sleep(1)
+            GPIO.output(11, False)
+            pwm.ChangeDutyCycle(duty)
 
-        
-    print("set to 15-deg")
-    setAngle(15)
-    sleep(1)
+        count = 0
+        numLoops = 2
 
-    print("set to 30-deg")
-    setAngle(30)
-    sleep(1)
-    
-    count=count+1
+        while count < numLoops:
+            print("set to 0-deg")
+            setAngle(0)
+            sleep(1)
 
-pwm.stop()
-GPIO.cleanup()
+                
+            print("set to 15-deg")
+            setAngle(15)
+            sleep(1)
+
+            print("set to 30-deg")
+            setAngle(30)
+            sleep(1)
+            
+            count=count+1
+
+        pwm.stop()
+        GPIO.cleanup()

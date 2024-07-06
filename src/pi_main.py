@@ -33,7 +33,9 @@ def capture_and_publish_image_stream(camera, target_fps):
         else:
             time_to_wait = 0
 
-        client.publish(config["MqttTopicWindows"], image_base64)
+        json_msg = json.dumps({"ir_camera_data": image_base64})
+
+        client.publish(config["MqttTopicWindows"], json_msg)
         print("Message published [{} FPS] [Waited for {} seconds]".format(round(1/time_elapsed, 1), round(time_to_wait, 2)))
         start = time.time()
 
