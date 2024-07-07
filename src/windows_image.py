@@ -30,3 +30,7 @@ def draw_boxes(image, objects, width, config):
 
 def draw_crosshair(image, width, height):
     return cv2.circle(image, (int(width/2), int(height/2)), 10, (0,0,255), 2)
+
+def draw_turret_status(image, pan, tilt):
+    cv2.putText(img=image, text=f"pan:  {pan}", org=(10,10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,255,0), thickness=1)
+    cv2.putText(img=image, text=f"tilt: {tilt}", org=(10,30), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,255,0), thickness=1)

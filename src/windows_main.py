@@ -38,6 +38,7 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     height, width = image.shape[:2]
     image = Imaging.draw_boxes(image, targeting.targets, width, config)
     image = Imaging.draw_crosshair(image, width, height)
+    image = Imaging.draw_turret_status(image, json_msg.get("camera_pan_angle"), json_msg.get("camera_tilt_angle"))
 
     # Look at target
     target_label = "cup"

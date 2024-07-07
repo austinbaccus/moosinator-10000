@@ -36,7 +36,6 @@ class Targeting:
         first_values = [x[0] for x in self.targeting_instructions_buffer]
         second_values = [x[1] for x in self.targeting_instructions_buffer]
 
-        # Step 2: Calculate the IQR for each list
         def calculate_iqr(data):
             Q1 = np.percentile(data, 25)
             Q3 = np.percentile(data, 75)
@@ -46,13 +45,11 @@ class Targeting:
         Q1_first, Q3_first, IQR_first = calculate_iqr(first_values)
         Q1_second, Q3_second, IQR_second = calculate_iqr(second_values)
 
-        # Step 3: Determine the lower and upper bounds for detecting outliers
         lower_bound_first = Q1_first - 1.5 * IQR_first
         upper_bound_first = Q3_first + 1.5 * IQR_first
         lower_bound_second = Q1_second - 1.5 * IQR_second
         upper_bound_second = Q3_second + 1.5 * IQR_second
 
-        # Step 4: Filter out the tuples that have outliers in either of the two lists
         filtered_tuples = [
             (x, y) for (x, y) in self.targeting_instructions_buffer
             if lower_bound_first <= x <= upper_bound_first and lower_bound_second <= y <= upper_bound_second

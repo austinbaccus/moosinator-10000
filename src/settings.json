@@ -11,5 +11,20 @@
     "RotateIRImage": 90,
     "MinimumConfidence": 30,
     "ValidTargetLabels": [
-    ]
+        "cup",
+        "person",
+        "cat",
+        "couch",
+        "chair"
+    ],
+    "TurretBounds": {
+        "TurretPanBoundNegative": -10,
+        "TurretPanBoundPositive": 10,
+        "TurretTiltBoundNegative": -10,
+        "TurretTiltBoundPositive": 10
+    },
+    "RaspberryPiPins": {
+        "Pan": 11,
+        "Tilt": 13
+    }
 }
