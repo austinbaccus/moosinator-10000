@@ -81,8 +81,8 @@ def degrees_to_target(crosshair_coords, target):
     horizontal_diff = target_center_mass_x - crosshair_coords[0]
     vertical_diff = target_center_mass_y - crosshair_coords[1]
 
-    degrees_to_pan = int((horizontal_diff/(screen_width/2)) * camera_horizontal_fov)
-    degrees_to_tilt = int((vertical_diff/(screen_height/2)) * camera_vertical_fov)
+    degrees_to_pan = int((horizontal_diff/(screen_width/2)) * camera_horizontal_fov * 0.5)
+    degrees_to_tilt = int((vertical_diff/(screen_height/2)) * camera_vertical_fov * 0.5)
     
     return (degrees_to_pan, degrees_to_tilt)
 

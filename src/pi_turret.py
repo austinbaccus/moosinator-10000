@@ -52,15 +52,16 @@ class Turret:
         self.pan.stop()
     
     def tilt_angle(self, angle):
-        angle = self.__calculate_safe_angle(angle, self.tilt_bound_min, self.tilt_bound_max)
-        print("Tilting to angle: {}".format(angle))
-        duty = angle / 18 + 2
+        safe_angle = self.__calculate_safe_angle(angle, self.tilt_bound_min, self.tilt_bound_max)
+        print("Tilting to angle: {} [attempted {}]".format(safe_angle, angle))
+        duty = safe_angle / 18 + 2
         GPIO.setup(self.tilt_pin, GPIO.OUT)
         GPIO.output(self.tilt_pin, True)
         self.tilt.ChangeDutyCycle(duty)
-        GPIO.output(self.tilt_pin, False)
-        GPIO.setup(self.tilt_pin, GPIO.IN)
-        self.current_tilt_angle = angle
+        #sleep(1)
+        #GPIO.output(self.tilt_pin, False)
+        #GPIO.setup(self.tilt_pin, GPIO.IN)
+        self.current_tilt_angle = safe_angle
 
     def __calculate_safe_angle(self, angle, min_angle, max_angle):
         if angle > max_angle:
