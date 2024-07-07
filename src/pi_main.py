@@ -52,6 +52,7 @@ def main():
         capture_and_publish_image_stream(camera, config["TargetFPS"])
 
     client.client.on_message = command_received
+    print("Listening on topic: {}".format(config["MqttTopicPi"]))
     client.start()
 
     try:
