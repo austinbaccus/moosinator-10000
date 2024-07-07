@@ -51,7 +51,7 @@ class Turret:
         sleep(1) # Grace period for servo to finish rotating before accepting new instructions.
         GPIO.output(self.tilt_pin, False)
         self.tilt.ChangeDutyCycle(duty) # We run this twice?
-        self.current_tilt_angle = self.current_tilt_angle + angle
+        self.current_tilt_angle = angle
         self.tilt.stop()
 
     def __calculate_safe_angle(self, angle, min_angle, max_angle):
