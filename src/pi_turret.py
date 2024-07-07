@@ -57,3 +57,4 @@ class Turret:
             return max_angle - current_angle
         if current_angle + angle < min_angle:
             return min_angle - current_angle
+        return angle
