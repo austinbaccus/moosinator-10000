@@ -56,14 +56,8 @@ def command_received(client, userdata, msg):
     
     if command_action == "move":
         target_instructions = ast.literal_eval(command_tokens[1])
-        print(target_instructions)
-        print(type(target_instructions))
-        print(target_instructions[0])
-        print(type(target_instructions[0]))
         # Tilt and pan angles are swapped because the turret is (currently) mounted sideways.
         desired_tilt_angle = int(target_instructions[0])
-        print(desired_tilt_angle[0])
-        print(type(desired_tilt_angle[0]))
         desired_pan_angle = int(target_instructions[1])
         turret.tilt_angle(desired_tilt_angle)
         #turret.pan_angle(desired_pan_angle)
@@ -72,7 +66,6 @@ def main():
     client.client.on_message = command_received
     print("Listening on topic: {}".format(config["MqttTopicPi"]))
     client.start()
-
     resolution = (config["TargetResolution"][0], config["TargetResolution"][1])
     
     try:
