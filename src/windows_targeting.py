@@ -21,10 +21,8 @@ class Targeting:
             self.targets.append(Target(conf, labels[int(cls)], [x1,y1,x2,y2]))
 
     def add_targeting_instructions_to_buffer(self, targeting_instructions):
-        # queue!!! 
-
         self.targeting_instructions_buffer.append(targeting_instructions)
-        if len(self.targeting_instructions_buffer)> 10:
+        if len(self.targeting_instructions_buffer) > 10:
             self.targeting_instructions_buffer.pop(0)
 
     def get_best_targeting_instruction(self):
