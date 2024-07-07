@@ -41,10 +41,9 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     image = Imaging.draw_turret_status(image, json_msg.get("camera_pan_angle"), json_msg.get("camera_tilt_angle"))
 
     # Look at target
-    target_label = "cup"
     target = None
     for t in targeting.targets:
-        if t.label == target_label:
+        if t.label == "cup" or t.label == "vase":
             target = t
     if target is not None:
         degrees_to_move = TargetAcq.degrees_to_target((int(width/2), int(height/2)), target)
@@ -60,12 +59,15 @@ def main():
     client.start()
     try:
         while True:
-            time.sleep(1)
+            time.sleep(5)
             topic = config["MqttTopicPi"]
-            pi_instructions = f"move {targeting.get_best_targeting_instruction()}"
-            client.publish(topic, pi_instructions)
-            print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
-            pi_instructions = ""
+            best_guess_targeting_instruction = targeting.get_best_targeting_instruction()
+            print(best_guess_targeting_instruction)
+            if best_guess_targeting_instruction is not None:
+                pi_instructions = f"move {best_guess_targeting_instruction}"
+                client.publish(topic, pi_instructions)
+                print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
+                pi_instructions = ""
     except KeyboardInterrupt:
         client.disconnect()
         cv2.destroyAllWindows()

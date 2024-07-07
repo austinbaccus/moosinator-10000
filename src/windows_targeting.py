@@ -33,6 +33,9 @@ class Targeting:
         # If the turret rotated for each instruction, it would (infrequently) encounter those outliers and be all herky-jerky.
         # So with that in mind, this method's job is to remove targeting instruction outliers from the buffer, and return the average of the remaining instruction tuples.
 
+        if len(self.targeting_instructions_buffer) == 0:
+            return None
+        
         first_values = [x[0] for x in self.targeting_instructions_buffer]
         second_values = [x[1] for x in self.targeting_instructions_buffer]
 

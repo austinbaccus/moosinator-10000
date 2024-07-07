@@ -10,7 +10,7 @@ with open('settings.json', 'r') as file:
     config = json.load(file)
 
 client = MQTTClient("raspberry_pi_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicPi"])
-turret = Turret()
+turret = Turret(config)
 start = time.time()
 
 def capture_and_publish_image_stream(camera, target_fps):
@@ -55,6 +55,7 @@ def command_received(client, userdata, msg):
     
     if command_action == "move":
         target_instructions = tuple(command_tokens[1])
+        turret.tilt(target_instructions[0])
 
 def main():
     client.client.on_message = command_received
