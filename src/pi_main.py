@@ -63,6 +63,7 @@ def command_received(client, userdata, msg):
         #turret.pan_angle(desired_pan_angle)
 
 def main():
+    #turret.tilt_angle(180)
     client.client.on_message = command_received
     print("Listening on topic: {}".format(config["MqttTopicPi"]))
     client.start()
@@ -72,6 +73,8 @@ def main():
         with picamera.PiCamera(resolution=resolution) as camera:
             capture_and_publish_image_stream(camera, config["TargetFPS"])
     except KeyboardInterrupt:
+        #turret.pan_angle(-turret.current_pan_angle)
+        turret.tilt_angle(-turret.current_tilt_angle)
         client.disconnect()
 
 main()
