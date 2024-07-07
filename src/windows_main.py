@@ -58,12 +58,12 @@ def main():
     client.start()
     try:
         while True:
-            time.sleep(2)
+            time.sleep(5)
             topic = config["MqttTopicPi"]
             best_guess_targeting_instruction = targeting.get_best_targeting_instruction()
             if best_guess_targeting_instruction is not None:
                 pi_instructions = f"move {best_guess_targeting_instruction}"
-                #client.publish(topic, pi_instructions)
+                client.publish(topic, pi_instructions)
                 print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
                 pi_instructions = ""
     except KeyboardInterrupt:

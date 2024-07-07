@@ -25,8 +25,6 @@ class Turret:
         self.tilt.start(0)
     
     def __del__(self):
-        #self.pan_angle(-self.current_pan_angle)
-        #self.tilt_angle(-self.current_tilt_angle+90)
         self.pan.stop()
         self.tilt.stop()
         GPIO.cleanup()
@@ -41,21 +39,24 @@ class Turret:
         GPIO.output(self.pan_pin, False)
         self.pan.ChangeDutyCycle(duty) # We run this twice?
         self.current_pan_angle = self.current_pan_angle + angle
+        self.pan.stop()
     
     def tilt_angle(self, angle):
-        angle = self.__calculate_safe_angle(angle, self.tilt_bound_min, self.tilt_bound_max, self.current_tilt_angle)
+        angle = self.__calculate_safe_angle(angle, self.tilt_bound_min, self.tilt_bound_max)
         print("Tilting to angle: {}".format(angle))
         duty = angle / 18 + 2
         GPIO.output(self.tilt_pin, True)
+        #self.tilt.start()
         self.tilt.ChangeDutyCycle(duty)
         sleep(1) # Grace period for servo to finish rotating before accepting new instructions.
         GPIO.output(self.tilt_pin, False)
         self.tilt.ChangeDutyCycle(duty) # We run this twice?
         self.current_tilt_angle = self.current_tilt_angle + angle
+        self.tilt.stop()
 
-    def __calculate_safe_angle(self, angle, min_angle, max_angle, current_angle):
-        if current_angle + angle > max_angle:
-            return max_angle - current_angle
-        if current_angle + angle < min_angle:
-            return min_angle - current_angle
+    def __calculate_safe_angle(self, angle, min_angle, max_angle):
+        if angle > max_angle:
+            return max_angle 
+        if angle < min_angle:
+            return min_angle
         return angle
