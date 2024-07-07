@@ -43,7 +43,7 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     # Look at target
     target = None
     for t in targeting.targets:
-        if t.label == "cup" or t.label == "vase":
+        if t.label == "person":
             target = t
     if target is not None:
         degrees_to_move = TargetAcq.degrees_to_target((int(width/2), int(height/2)), target)
@@ -58,7 +58,7 @@ def main():
     client.start()
     try:
         while True:
-            time.sleep(5)
+            time.sleep(1)
             topic = config["MqttTopicPi"]
             best_guess_targeting_instruction = targeting.get_best_targeting_instruction()
             if best_guess_targeting_instruction is not None:
