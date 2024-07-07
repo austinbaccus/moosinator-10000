@@ -47,17 +47,15 @@ def command_received(command):
     print("command received: {}".format(command))
 
 def main():
-    resolution = (config["TargetResolution"][0], config["TargetResolution"][1])
-    with picamera.PiCamera(resolution=resolution) as camera:
-        capture_and_publish_image_stream(camera, config["TargetFPS"])
-
     client.client.on_message = command_received
     print("Listening on topic: {}".format(config["MqttTopicPi"]))
     client.start()
 
+    resolution = (config["TargetResolution"][0], config["TargetResolution"][1])
+    
     try:
-        while True:
-            pass
+        with picamera.PiCamera(resolution=resolution) as camera:
+            capture_and_publish_image_stream(camera, config["TargetFPS"])
     except KeyboardInterrupt:
         client.disconnect()
 
