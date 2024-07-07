@@ -62,7 +62,6 @@ def main():
             time.sleep(5)
             topic = config["MqttTopicPi"]
             best_guess_targeting_instruction = targeting.get_best_targeting_instruction()
-            print(best_guess_targeting_instruction)
             if best_guess_targeting_instruction is not None:
                 pi_instructions = f"move {best_guess_targeting_instruction}"
                 client.publish(topic, pi_instructions)

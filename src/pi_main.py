@@ -55,10 +55,9 @@ def command_received(client, userdata, msg):
     
     if command_action == "move":
         target_instructions = tuple(command_tokens[1])
-
         # Til and pan angles are swapped because the turret is (currently) mounted sideways.
-        desired_tilt_angle = target_instructions[0]
-        desired_pan_angle = target_instructions[1]
+        desired_tilt_angle = int(target_instructions[0])
+        desired_pan_angle = int(target_instructions[1])
         turret.tilt_angle(desired_tilt_angle)
         #turret.pan_angle(desired_pan_angle)
 
