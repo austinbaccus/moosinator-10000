@@ -48,7 +48,7 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     if target is not None:
         degrees_to_move = TargetAcq.degrees_to_target((int(width/2), int(height/2)), target)
         targeting.add_targeting_instructions_to_buffer(degrees_to_move)
-        print(targeting.targeting_instructions_buffer)
+        #print(targeting.targeting_instructions_buffer)
 
     cv2.imshow('Moosinator Cam', image)
     cv2.waitKey(1)
