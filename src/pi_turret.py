@@ -3,6 +3,16 @@
 import RPi.GPIO as GPIO
 from time import sleep
 
+# Tilt
+# 90 max tilt up (catapult loaded)
+# 110 max comfortable tilt up
+# 180 max tilt down (mid catapult swing)
+
+# Pan
+# 0 max pan forwards
+# 90 max pan upwards
+# 180 max pan backwards
+
 class Turret:
     def __init__(self, config):
         self.pan_pin = config["RaspberryPiPins"]["Pan"]
@@ -45,14 +55,12 @@ class Turret:
         angle = self.__calculate_safe_angle(angle, self.tilt_bound_min, self.tilt_bound_max)
         print("Tilting to angle: {}".format(angle))
         duty = angle / 18 + 2
+        GPIO.setup(self.tilt_pin, GPIO.OUT)
         GPIO.output(self.tilt_pin, True)
-        #self.tilt.start()
         self.tilt.ChangeDutyCycle(duty)
-        sleep(1) # Grace period for servo to finish rotating before accepting new instructions.
         GPIO.output(self.tilt_pin, False)
-        self.tilt.ChangeDutyCycle(duty) # We run this twice?
+        GPIO.setup(self.tilt_pin, GPIO.IN)
         self.current_tilt_angle = angle
-        self.tilt.stop()
 
     def __calculate_safe_angle(self, angle, min_angle, max_angle):
         if angle > max_angle:

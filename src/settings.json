@@ -1,5 +1,5 @@
 {
-    "RaspberryPiIP": "192.168.0.131",
+    "RaspberryPiIP": "192.168.0.132",
     "RaspberryPiPort": 1883,
     "MqttTopicWindows": "moosinator/windows",
     "MqttTopicPi": "moosinator/pi",
@@ -15,10 +15,10 @@
         "person"
     ],
     "TurretBounds": {
-        "TurretPanBoundNegative": -10,
-        "TurretPanBoundPositive": 10,
-        "TurretTiltBoundNegative": 100,
-        "TurretTiltBoundPositive": 220
+        "TurretPanBoundNegative": 0,
+        "TurretPanBoundPositive": 180,
+        "TurretTiltBoundNegative": 90,
+        "TurretTiltBoundPositive": 180
     },
     "RaspberryPiPins": {
         "Pan": 11,
