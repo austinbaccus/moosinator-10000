@@ -2,6 +2,7 @@ import cv2
 from network import MQTTClient
 from windows_ai import AI_YOLOv5
 from windows_targeting import Targeting
+import windows_targeting as TargetAcq
 import windows_image as Imaging
 import time
 import json
@@ -13,6 +14,7 @@ ai = AI_YOLOv5()
 targeting = Targeting()
 client = MQTTClient("windows_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicWindows"])
 start = time.time()
+global pi_instructions
 
 def analyze_photo_data_from_pi(client, userdata, msg):
     # JSON
@@ -36,16 +38,33 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     height, width = image.shape[:2]
     image = Imaging.draw_boxes(image, targeting.targets, width, config)
     image = Imaging.draw_crosshair(image, width, height)
+
+    # Look at target
+    target_label = "cup"
+    target = None
+    for t in targeting.targets:
+        if t.label == target_label:
+            target = t
+    if target is not None:
+        degrees_to_move = TargetAcq.degrees_to_target((int(width/2), int(height/2)), target)
+        targeting.add_targeting_instructions_to_buffer(degrees_to_move)
+        print(targeting.targeting_instructions_buffer)
+
     cv2.imshow('Moosinator Cam', image)
     cv2.waitKey(1)
 
 def main():
+    pi_instructions = ""
     client.client.on_message = analyze_photo_data_from_pi
     client.start()
     try:
         while True:
-            time.sleep(5)
-            client.publish(config["MqttTopicPi"], "Some command...")
+            time.sleep(1)
+            topic = config["MqttTopicPi"]
+            pi_instructions = f"move {targeting.get_best_targeting_instruction()}"
+            client.publish(topic, pi_instructions)
+            print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
+            pi_instructions = ""
     except KeyboardInterrupt:
         client.disconnect()
         cv2.destroyAllWindows()

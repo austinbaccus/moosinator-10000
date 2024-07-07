@@ -11,7 +11,5 @@
     "RotateIRImage": 90,
     "MinimumConfidence": 30,
     "ValidTargetLabels": [
-        "person",
-        "cat"
     ]
 }
