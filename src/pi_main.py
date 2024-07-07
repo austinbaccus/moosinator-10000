@@ -43,8 +43,8 @@ def capture_and_publish_image_stream(camera, target_fps):
         stream.seek(0)
         stream.truncate()
 
-def command_received(command):
-    print("command received: {}".format(command))
+def command_received(client, userdata, msg):
+    print("command received: {}".format(msg))
 
 def main():
     client.client.on_message = command_received
