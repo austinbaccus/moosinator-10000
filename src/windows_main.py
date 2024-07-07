@@ -59,7 +59,7 @@ def main():
     client.start()
     try:
         while True:
-            time.sleep(5)
+            time.sleep(2)
             topic = config["MqttTopicPi"]
             best_guess_targeting_instruction = targeting.get_best_targeting_instruction()
             if best_guess_targeting_instruction is not None:
