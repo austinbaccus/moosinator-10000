@@ -22,10 +22,11 @@ class Turret:
         self.tilt = GPIO.PWM(self.tilt_pin, 50)
         self.pan.start(0)
         self.tilt.start(0)
+        self.tilt_angle(90)
     
     def __del__(self):
         self.pan_angle(-self.current_pan_angle)
-        self.tilt_angle(-self.current_tilt_angle)
+        self.tilt_angle(-self.current_tilt_angle+90)
         self.pan.stop()
         self.tilt.stop()
         GPIO.cleanup()
