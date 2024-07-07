@@ -5,6 +5,7 @@ import io
 import base64
 import time
 import json
+import ast
 
 with open('settings.json', 'r') as file:
     config = json.load(file)
@@ -54,12 +55,12 @@ def command_received(client, userdata, msg):
     command_action = command_tokens[0]
     
     if command_action == "move":
-        target_instructions = tuple(command_tokens[1])
+        target_instructions = ast.literal_eval(command_tokens[1])
         print(target_instructions)
         print(type(target_instructions))
         print(target_instructions[0])
         print(type(target_instructions[0]))
-        # Til and pan angles are swapped because the turret is (currently) mounted sideways.
+        # Tilt and pan angles are swapped because the turret is (currently) mounted sideways.
         desired_tilt_angle = int(target_instructions[0])
         print(desired_tilt_angle[0])
         print(type(desired_tilt_angle[0]))
