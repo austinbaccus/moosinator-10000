@@ -59,6 +59,14 @@ def command_received(client, userdata, msg):
     
     if command_action == "move":
         target_instructions = ast.literal_eval(command_tokens[1])
+
+
+        current_pan_angle = current_pan_angle + int(target_instructions[1])
+        current_tilt_angle = current_tilt_angle + int(target_instructions[0])
+
+        current_pan_angle = max(min(current_pan_angle, 150), 60)
+        current_tilt_angle = max(min(current_tilt_angle, 180), 100)
+
         arduinoSerial.send("rotate ({},{})".format(int(target_instructions[0]), int(target_instructions[1])))
 
 def main():

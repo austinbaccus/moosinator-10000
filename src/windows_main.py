@@ -48,6 +48,8 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     if target is not None:
         degrees_to_move = TargetAcq.degrees_to_target((int(width/2), int(height/2)), target)
         targeting.add_targeting_instructions_to_buffer(degrees_to_move)
+    else:
+        targeting.add_targeting_instructions_to_buffer((None,None))
 
     cv2.imshow('Moosinator Cam', image)
     cv2.waitKey(1)
@@ -58,14 +60,18 @@ def main():
     client.start()
     try:
         while True:
-            time.sleep(5)
+            time.sleep(0.2)
             topic = config["MqttTopicPi"]
             best_guess_targeting_instruction = targeting.get_best_targeting_instruction()
+
             if best_guess_targeting_instruction is not None:
                 pi_instructions = f"move {best_guess_targeting_instruction}"
-                client.publish(topic, pi_instructions)
-                print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
-                pi_instructions = ""
+            else:
+                pi_instructions = f"move (0,0)"
+
+            client.publish(topic, pi_instructions)
+            print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
+            pi_instructions = ""
     except KeyboardInterrupt:
         client.disconnect()
         cv2.destroyAllWindows()

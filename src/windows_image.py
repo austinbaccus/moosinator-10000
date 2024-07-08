@@ -34,4 +34,5 @@ def draw_crosshair(image, width, height):
 def draw_turret_status(image, pan, tilt):
     cv2.putText(img=image, text=f"pan: {pan}", org=(10,15), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,255,0), thickness=1)
     cv2.putText(img=image, text=f"tilt:  {tilt}", org=(10,35), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,255,0), thickness=1)
+    cv2.putText(img=image, text=f"looking for: cup", org=(10,55), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,255,0), thickness=1)
     return image

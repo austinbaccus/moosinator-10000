@@ -22,7 +22,7 @@ class Targeting:
 
     def add_targeting_instructions_to_buffer(self, targeting_instructions):
         self.targeting_instructions_buffer.append(targeting_instructions)
-        if len(self.targeting_instructions_buffer) > 10:
+        if len(self.targeting_instructions_buffer) > 5:
             self.targeting_instructions_buffer.pop(0)
 
     def get_best_targeting_instruction(self):
@@ -33,11 +33,23 @@ class Targeting:
         # If the turret rotated for each instruction, it would (infrequently) encounter those outliers and be all herky-jerky.
         # So with that in mind, this method's job is to remove targeting instruction outliers from the buffer, and return the average of the remaining instruction tuples.
 
+        print(self.targeting_instructions_buffer)
+
         if len(self.targeting_instructions_buffer) == 0:
             return None
         
-        first_values = [x[0] for x in self.targeting_instructions_buffer]
-        second_values = [x[1] for x in self.targeting_instructions_buffer]
+        valid_tuples = [
+            (x, y) for (x, y) in self.targeting_instructions_buffer
+            if x is not None and y is not None
+        ]
+
+        print(valid_tuples)
+
+        if len(valid_tuples) < 3:
+            return None
+        
+        first_values = [x[0] for x in valid_tuples]
+        second_values = [x[1] for x in valid_tuples]
 
         def calculate_iqr(data):
             Q1 = np.percentile(data, 25)
@@ -54,7 +66,7 @@ class Targeting:
         upper_bound_second = Q3_second + 1.5 * IQR_second
 
         filtered_tuples = [
-            (x, y) for (x, y) in self.targeting_instructions_buffer
+            (x, y) for (x, y) in valid_tuples
             if lower_bound_first <= x <= upper_bound_first and lower_bound_second <= y <= upper_bound_second
         ]
         
@@ -84,7 +96,7 @@ def degrees_to_target(crosshair_coords, target):
     degrees_to_pan = int((horizontal_diff/(screen_width/2)) * camera_horizontal_fov)
     degrees_to_tilt = int((vertical_diff/(screen_height/2)) * camera_vertical_fov)
     
-    return (degrees_to_pan, degrees_to_tilt)
+    return (degrees_to_tilt/2, -1*degrees_to_pan/2)
 
 def is_target_valid(target, config):
     if target.certainty < config["MinimumConfidence"]:
