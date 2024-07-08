@@ -24,6 +24,8 @@ void setup()
   Serial.begin(9600);
   panToAngle(100);
   tiltToAngle(170);
+  turretRotationInstructions[0] = 100;
+  turretRotationInstructions[1] = 170;
 }
 
 void loop() 
@@ -59,8 +61,11 @@ int* parseRotationDegrees(String data)
   int panDegree = details.substring(0, commaIndex).toInt();
   int tiltDegree = details.substring(commaIndex+1).toInt();
 
-  turretRotationInstructions[0] = max(min(panDegree, pan_degree_max), pan_degree_min);
-  turretRotationInstructions[1] = max(min(tiltDegree, tilt_degree_max), tilt_degree_min);
+  int desiredPanDegree = turretRotationInstructions[0] + panDegree;
+  int desiredTiltDegree = turretRotationInstructions[1] + tiltDegree;
+
+  turretRotationInstructions[0] = max(min(desiredPanDegree, pan_degree_max), pan_degree_min);
+  turretRotationInstructions[1] = max(min(desiredTiltDegree, tilt_degree_max), tilt_degree_min);
 }
 
 void panToAngle(int degree)

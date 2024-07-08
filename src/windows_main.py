@@ -43,7 +43,7 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     # Look at target
     target = None
     for t in targeting.targets:
-        if t.label == "person":
+        if t.label == "cup":
             target = t
     if target is not None:
         degrees_to_move = TargetAcq.degrees_to_target((int(width/2), int(height/2)), target)

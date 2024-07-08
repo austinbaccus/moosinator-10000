@@ -10,8 +10,8 @@ import ast
 with open('settings.json', 'r') as file:
     config = json.load(file)
 
-current_pan_angle = 0
-current_tilt_angle = 0
+current_pan_angle = 100
+current_tilt_angle = 170
 
 arduinoSerial = ArduinoSerial()
 client = MQTTClient("raspberry_pi_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicPi"])
@@ -59,11 +59,7 @@ def command_received(client, userdata, msg):
     
     if command_action == "move":
         target_instructions = ast.literal_eval(command_tokens[1])
-        # Tilt and pan angles are swapped because the turret is (currently) mounted sideways.
-        desired_tilt_angle = current_tilt_angle - int(target_instructions[0])
-        desired_pan_angle = current_pan_angle - int(target_instructions[1])
-
-        arduinoSerial.send("rotate ({},{})".format(desired_pan_angle, desired_tilt_angle))
+        arduinoSerial.send("rotate ({},{})".format(int(target_instructions[0]), int(target_instructions[1])))
 
 def main():
     client.client.on_message = command_received
