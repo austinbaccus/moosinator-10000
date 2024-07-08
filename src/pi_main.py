@@ -1,5 +1,5 @@
 from network import MQTTClient
-from pi_turret import Turret
+from pi_serial import ArduinoSerial
 import picamera
 import io
 import base64
@@ -10,8 +10,11 @@ import ast
 with open('settings.json', 'r') as file:
     config = json.load(file)
 
+current_pan_angle = 0
+current_tilt_angle = 0
+
+arduinoSerial = ArduinoSerial()
 client = MQTTClient("raspberry_pi_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicPi"])
-turret = Turret(config)
 start = time.time()
 
 def capture_and_publish_image_stream(camera, target_fps):
@@ -36,8 +39,8 @@ def capture_and_publish_image_stream(camera, target_fps):
         
         json_msg = {
             "ir_camera_data": image_base64,
-            "camera_pan_angle": turret.current_pan_angle,
-            "camera_tilt_angle": turret.current_tilt_angle,
+            "camera_pan_angle": current_pan_angle,
+            "camera_tilt_angle": current_tilt_angle,
         }
 
         client.publish(config["MqttTopicWindows"], json.dumps(json_msg))
@@ -57,13 +60,12 @@ def command_received(client, userdata, msg):
     if command_action == "move":
         target_instructions = ast.literal_eval(command_tokens[1])
         # Tilt and pan angles are swapped because the turret is (currently) mounted sideways.
-        desired_tilt_angle = turret.current_tilt_angle - int(target_instructions[0])
-        #desired_pan_angle = int(target_instructions[1])
-        turret.tilt_angle(desired_tilt_angle)
-        #turret.pan_angle(desired_pan_angle)
+        desired_tilt_angle = current_tilt_angle - int(target_instructions[0])
+        desired_pan_angle = current_pan_angle - int(target_instructions[1])
+
+        arduinoSerial.send("rotate ({},{})".format(desired_pan_angle, desired_tilt_angle))
 
 def main():
-    turret.tilt_angle(180)
     client.client.on_message = command_received
     print("Listening on topic: {}".format(config["MqttTopicPi"]))
     client.start()

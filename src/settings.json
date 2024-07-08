@@ -17,9 +17,5 @@
         "TurretPanBoundPositive": 180,
         "TurretTiltBoundNegative": 90,
         "TurretTiltBoundPositive": 180
-    },
-    "RaspberryPiPins": {
-        "Pan": 11,
-        "Tilt": 13
     }
 }
