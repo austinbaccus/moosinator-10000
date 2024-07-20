@@ -12,7 +12,7 @@ with open('settings.json', 'r') as file:
 
 ai = AI_YOLOv5()
 targeting = Targeting()
-client = MQTTClient("windows_client", config["RaspberryPiIP"], config["RaspberryPiPort"], config["MqttTopicWindows"])
+client = MQTTClient("windows_client", config["Network"]["RaspberryPiIP"], config["Network"]["RaspberryPiPort"], config["Network"]["MqttTopicWindows"])
 start = time.time()
 global pi_instructions
 
@@ -22,7 +22,8 @@ def analyze_photo_data_from_pi(client, userdata, msg):
 
     # FPS
     global start
-    print(f"Message received on topic {msg.topic} [{round(1/(time.time() - start),1)} FPS]")
+    if config["Debug"]["PrintMqttFPS"]:
+        print(f"Message received on topic {msg.topic} [{round(1/(time.time() - start),1)} FPS]")
     start = time.time()
 
     # Changing incoming data into usable state for AI
@@ -54,24 +55,30 @@ def analyze_photo_data_from_pi(client, userdata, msg):
     cv2.imshow('Moosinator Cam', image)
     cv2.waitKey(1)
 
+def capture_user_input():
+    print()
+
 def main():
     pi_instructions = ""
     client.client.on_message = analyze_photo_data_from_pi
     client.start()
+    topic = config["Network"]["MqttTopicPi"]
+    
     try:
         while True:
-            time.sleep(0.2)
-            topic = config["MqttTopicPi"]
-            best_guess_targeting_instruction = targeting.get_best_targeting_instruction()
+            if config["Turret"]["AiTurretControl"]:
+                time.sleep(0.4)
+                best_guess_targeting_instruction = targeting.get_best_targeting_instruction(config)
 
-            if best_guess_targeting_instruction is not None:
-                pi_instructions = f"move {best_guess_targeting_instruction}"
-            else:
-                pi_instructions = f"move (0,0)"
+                if best_guess_targeting_instruction is not None:
+                    pi_instructions = f"move {best_guess_targeting_instruction}"
+                else:
+                    pi_instructions = f"move (0,0)"
 
-            client.publish(topic, pi_instructions)
-            print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
-            pi_instructions = ""
+                client.publish(topic, pi_instructions)
+                if config["Debug"]["PrintMqttMessageSent"]:
+                    print(f"\nMessage sent on topic {topic}: {pi_instructions}\n")
+
     except KeyboardInterrupt:
         client.disconnect()
         cv2.destroyAllWindows()

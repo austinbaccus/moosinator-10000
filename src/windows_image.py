@@ -7,7 +7,7 @@ def prepare_ir_image_for_ai(ir_image_base64, config):
     ir_image_data = base64.b64decode(ir_image_base64)
     nparr = np.frombuffer(ir_image_data, np.uint8)
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    frame = rotate_image(frame, config["RotateIRImage"])
+    frame = rotate_image(frame, config["Image"]["RotateIRImage"])
     return frame
 
 def rotate_image(image, rotation_value):

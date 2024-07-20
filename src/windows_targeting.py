@@ -25,7 +25,7 @@ class Targeting:
         if len(self.targeting_instructions_buffer) > 5:
             self.targeting_instructions_buffer.pop(0)
 
-    def get_best_targeting_instruction(self):
+    def get_best_targeting_instruction(self, config):
         # This method returns the best-guess horizontal and vertical degrees the turret needs to rotate in order to be on target.
         # Why not just return the last set of targeting instructions? Good question. Because sometimes the AI
         # object detection gets it really, really wrong and the coordinates are way off from where you actually want the turret to look at. 
@@ -33,7 +33,8 @@ class Targeting:
         # If the turret rotated for each instruction, it would (infrequently) encounter those outliers and be all herky-jerky.
         # So with that in mind, this method's job is to remove targeting instruction outliers from the buffer, and return the average of the remaining instruction tuples.
 
-        print(self.targeting_instructions_buffer)
+        if config["Debug"]["PrintTargetingBuffer"]:
+            print(self.targeting_instructions_buffer)
 
         if len(self.targeting_instructions_buffer) == 0:
             return None
@@ -43,7 +44,8 @@ class Targeting:
             if x is not None and y is not None
         ]
 
-        print(valid_tuples)
+        if config["Debug"]["PrintFilteredTargetingBuffer"]:
+            print(valid_tuples)
 
         if len(valid_tuples) < 3:
             return None
@@ -99,8 +101,8 @@ def degrees_to_target(crosshair_coords, target):
     return (degrees_to_tilt/2, -1*degrees_to_pan/2)
 
 def is_target_valid(target, config):
-    if target.certainty < config["MinimumConfidence"]:
+    if target.certainty < config["ObjectDetection"]["MinimumConfidence"]:
         return False
-    if target.label not in config["ValidTargetLabels"] and len(config["ValidTargetLabels"]) > 0:
+    if target.label not in config["ObjectDetection"]["ValidTargetLabels"] and len(config["ObjectDetection"]["ValidTargetLabels"]) > 0:
         return False
     return True

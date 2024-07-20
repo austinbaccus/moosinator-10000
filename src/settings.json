@@ -1,21 +1,35 @@
 {
-    "RaspberryPiIP": "192.168.0.131",
-    "RaspberryPiPort": 1883,
-    "MqttTopicWindows": "moosinator/windows",
-    "MqttTopicPi": "moosinator/pi",
-    "TargetFPS": 25,
-    "TargetResolution": [
-        480,
-        360
-    ],
-    "RotateIRImage": 90,
-    "MinimumConfidence": 30,
-    "ValidTargetLabels": [
-    ],
-    "TurretBounds": {
+    "Network": {
+        "RaspberryPiIP": "192.168.0.131",
+        "RaspberryPiPort": 1883,
+        "MqttTopicWindows": "moosinator/windows",
+        "MqttTopicPi": "moosinator/pi"
+    },
+    "Image": {
+        "RotateIRImage": 180,
+        "TargetFPS": 25,
+        "TargetResolution": [
+            480,
+            360
+        ]
+    },
+    "ObjectDetection": {
+        "MinimumConfidence": 30,
+        "ValidTargetLabels": [
+        ]
+    },
+    "Turret": {
+        "AiTurretControl": true,
+        "HumanTurretControl": false,
         "TurretPanBoundNegative": 0,
         "TurretPanBoundPositive": 180,
         "TurretTiltBoundNegative": 90,
         "TurretTiltBoundPositive": 180
+    },
+    "Debug": {
+        "PrintMqttFPS": false,
+        "PrintMqttMessageSent": false,
+        "PrintTargetingBuffer": false,
+        "PrintFilteredTargetingBuffer": false
     }
 }
