@@ -7,7 +7,7 @@
     },
     "Image": {
         "RotateIRImage": 180,
-        "TargetFPS": 25,
+        "TargetFPS": 50,
         "TargetResolution": [
             480,
             360
@@ -16,14 +16,15 @@
     "ObjectDetection": {
         "MinimumConfidence": 30,
         "ValidTargetLabels": [
+            "person"
         ]
     },
     "Turret": {
-        "AiTurretControl": true,
+        "AiTurretControl": false,
         "HumanTurretControl": false,
         "TurretPanBoundNegative": 0,
         "TurretPanBoundPositive": 180,
-        "TurretTiltBoundNegative": 90,
+        "TurretTiltBoundNegative": 0,
         "TurretTiltBoundPositive": 180
     },
     "Debug": {

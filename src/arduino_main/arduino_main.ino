@@ -1,20 +1,22 @@
 #include <Servo.h>
 
 const unsigned int MAX_MESSAGE_LENGTH = 32;
-int deg = 0;
 
 Servo panServo;
 Servo tiltServo;
 const int servoPanPin = 12;
-const int servoTiltPin = 13;
-const int pan_min = 550;
-const int pan_max = 2000;
-const int tilt_min = 20;
-const int tilt_max = 1500;
-const int tilt_degree_min = 100; // With a long cable it's 55, with a short cable it's 100 
-const int tilt_degree_max = 180;
-const int pan_degree_min = 60;
-const int pan_degree_max = 150;
+const int servoTiltPin = 10;
+
+const int pan_min = 100;
+const int pan_max = 500;
+const int pan_degree_min = 0;
+const int pan_degree_max = 180;
+
+const int tilt_min = 100;
+const int tilt_max = 600;
+const int tilt_degree_min = 90;
+const int tilt_degree_max = 195;
+
 static int turretRotationInstructions[2];
 
 void setup() 
@@ -22,9 +24,9 @@ void setup()
   panServo.attach(servoPanPin, pan_min, pan_max);
   tiltServo.attach(servoTiltPin, tilt_min, tilt_max);
   Serial.begin(9600);
-  panToAngle(100);
-  tiltToAngle(170);
-  turretRotationInstructions[0] = 100;
+  pan(90);
+  tilt(170);
+  turretRotationInstructions[0] = 90;
   turretRotationInstructions[1] = 170;
 }
 
@@ -38,15 +40,10 @@ void loop()
     if (command == "rotate")
     {
       parseRotationDegrees(incomingString);
-      panToAngle(turretRotationInstructions[0]);
-      tiltToAngle(turretRotationInstructions[1]);
+      pan(turretRotationInstructions[0]);
+      tilt(turretRotationInstructions[1]);
     }
   }
-}
-
-String parseCommand(String data)
-{
-  return data.substring(0, data.indexOf(' '));
 }
 
 int* parseRotationDegrees(String data)
@@ -66,14 +63,19 @@ int* parseRotationDegrees(String data)
 
   turretRotationInstructions[0] = max(min(desiredPanDegree, pan_degree_max), pan_degree_min);
   turretRotationInstructions[1] = max(min(desiredTiltDegree, tilt_degree_max), tilt_degree_min);
+  Serial.print(turretRotationInstructions[0]);
+  Serial.print(",");
+  Serial.println(turretRotationInstructions[1]);
 }
 
-void panToAngle(int degree)
+void pan(int angle)
 {
-  panServo.write(max(min(degree, pan_degree_max), pan_degree_min));
+  int servo_angle = map(angle,0,180,30,180);
+  panServo.write(max(min(servo_angle, pan_degree_max), pan_degree_min));
 }
 
-void tiltToAngle(int degree)
+void tilt(int angle)
 {
-  tiltServo.write(max(min(degree, tilt_degree_max), tilt_degree_min));
+  int servo_angle = map(angle,90,210,90,180);
+  tiltServo.write(max(min(servo_angle, tilt_degree_max), tilt_degree_min));
 }
