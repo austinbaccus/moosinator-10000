@@ -29,8 +29,8 @@ class ArduinoSerial:
         for port in ports:
             try:
                 # Try to open each port
-                print ("Listening for Arduino on port {}".format(port.device))
-                ser = serial.Serial(port.device, baudrate=9600, timeout=1)
+                print ("Listening for Arduino on port {}".format(port))
+                ser = serial.Serial(port, baudrate=9600, timeout=1)
                 ser.flush()
                 
                 # Read a line from the port
@@ -43,7 +43,7 @@ class ArduinoSerial:
                         return port
                     
                 ser.close()
-            except (OSError, serial.SerialException):
+            except:
                 pass
         
         print("Arduino not found on any port.")
