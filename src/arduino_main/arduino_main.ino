@@ -2,35 +2,25 @@
 
 const unsigned int MAX_MESSAGE_LENGTH = 32;
 
-Servo panServo;
-Servo tiltServo;
-const int servoPanPin = 12;
-const int servoTiltPin = 10;
-
-const int pan_min = 100;
-const int pan_max = 500;
-const int pan_degree_min = 0;
-const int pan_degree_max = 180;
-
-const int tilt_min = 100;
-const int tilt_max = 600;
-const int tilt_degree_min = 90;
-const int tilt_degree_max = 195;
+Servo servoPan;
+Servo servoTilt;
+const int servoPanPin = 6;
+const int servoTiltPin = 5;
 
 static int turretRotationInstructions[2];
 
 void setup() 
 {
-  panServo.attach(servoPanPin, pan_min, pan_max);
-  tiltServo.attach(servoTiltPin, tilt_min, tilt_max);
+  servoPan.attach(servoPanPin);
+  servoTilt.attach(servoTiltPin);
   Serial.begin(9600);
   pan(90);
-  tilt(170);
+  tilt(90);
   turretRotationInstructions[0] = 90;
-  turretRotationInstructions[1] = 170;
+  turretRotationInstructions[1] = 90;
 }
 
-void loop() 
+void loop()
 {
   if (Serial.available() > 0) 
   {
@@ -61,8 +51,9 @@ int* parseRotationDegrees(String data)
   int desiredPanDegree = turretRotationInstructions[0] + panDegree;
   int desiredTiltDegree = turretRotationInstructions[1] + tiltDegree;
 
-  turretRotationInstructions[0] = max(min(desiredPanDegree, pan_degree_max), pan_degree_min);
-  turretRotationInstructions[1] = max(min(desiredTiltDegree, tilt_degree_max), tilt_degree_min);
+  turretRotationInstructions[0] = max(min(desiredPanDegree, 180), 0);
+  turretRotationInstructions[1] = max(min(desiredTiltDegree, 180), 0);
+  
   Serial.print(turretRotationInstructions[0]);
   Serial.print(",");
   Serial.println(turretRotationInstructions[1]);
@@ -70,12 +61,10 @@ int* parseRotationDegrees(String data)
 
 void pan(int angle)
 {
-  int servo_angle = map(angle,0,180,30,180);
-  panServo.write(max(min(servo_angle, pan_degree_max), pan_degree_min));
+  servoPan.write(max(min(angle, 180), 0));
 }
 
 void tilt(int angle)
 {
-  int servo_angle = map(angle,90,210,90,180);
-  tiltServo.write(max(min(servo_angle, tilt_degree_max), tilt_degree_min));
+  servoTilt.write(max(min(angle, 180), 0));
 }

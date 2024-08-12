@@ -1,7 +1,5 @@
 from collections import defaultdict
 import platform
-import io
-import base64
 import json
 import time
 import cv2
@@ -9,13 +7,13 @@ import ai
 from targeting import Targeting
 import targeting as TargetAcq
 import image as Imaging
+from camera import Camera, CameraType
 from serial import ArduinoSerial
-from ultralytics.utils.plotting import Annotator, colors
 
-if platform.system() == "Linux":
-    import picamera
-if platform.system() == "Windows":
-    from PIL import Image
+#if platform.system() == "Linux":
+#    import picamera
+#if platform.system() == "Windows":
+#    from PIL import Image
 
 try:
     with open('settings.json', 'r') as file:
@@ -32,72 +30,6 @@ current_tilt_angle = 90
 fps_buffer = []
 start = time.time()
 track_history = defaultdict(lambda: [])
-
-def analyze_image_stream_pi(camera):
-    global start
-    stream = io.BytesIO()
-
-    for _ in camera.capture_continuous(stream, format='jpeg', use_video_port=True):
-        stream.seek(0)
-        
-        # FPS
-        fps = round(1/(time.time() - start),1)
-        fps_buffer.append(fps)
-        if len(fps_buffer) > 10:
-            fps_buffer.pop(0)
-        smooth_fps = int(sum(fps_buffer) / len (fps_buffer))
-        start = time.time()
-
-        # Get image from camera
-        image = Imaging.prepare_ir_image_for_ai(base64.b64encode(stream.read()).decode('utf-8'), config)
-
-        # Tell the turret to do stuff and draw stuff to the camera preview
-        loop(image, smooth_fps)
-
-        stream.seek(0)
-        stream.truncate()
-
-def analyze_image_stream_windows(camera):
-    global start
-
-    # Check if the webcam is opened correctly
-    if not camera.isOpened():
-        raise IOError("Cannot open webcam")
-    
-    while True:
-        # FPS
-        fps = round(1/(time.time() - start),1)
-        fps_buffer.append(fps)
-        if len(fps_buffer) > 10:
-            fps_buffer.pop(0)
-        smooth_fps = int(sum(fps_buffer) / len (fps_buffer))
-        start = time.time()
-
-        # Capture frame-by-frame
-        ret, frame = camera.read()
-        loop(frame, smooth_fps)
-
-        # Press 'q' to exit the loop
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-def loop(image, smooth_fps):
-    # Get objects in picture
-    object_detection_results = ai.track_objects(image)
-
-    # If nothing was detected, return early
-    if object_detection_results[0].boxes is None:
-        return
-    
-    # Annotate video feed
-    cv2.imshow('Moosinator Cam', annotate_image(image, smooth_fps, object_detection_results))
-
-    # Update targeting
-    update_targeting(image, object_detection_results)
-
-    # Fire on target
-    if config["Turret"]["AiTurretControl"]:
-        command_turret(targeting.get_best_targeting_instruction(config))
 
 def annotate_image(image, fps, object_detection_results):
     try:
@@ -134,18 +66,44 @@ def command_turret(best_guess_targeting_instruction):
     arduinoSerial.send("rotate ({},{})".format(int(best_guess_targeting_instruction[0]), int(best_guess_targeting_instruction[1])))
 
 def main():
+    camera = None
+    if config["Image"]["Type"] == "webcam":
+        camera = Camera(CameraType.WEBCAM, config)
+    elif config["Image"]["Type"] == "picamera":
+        camera = Camera(CameraType.PICAMERA, config)
+    
     try:
-        if platform.system() == "Linux":
-            #with picamera.PiCamera(resolution=(config["TargetResolution"][0], config["TargetResolution"][1])) as camera:
-                #analyze_image_stream_pi(camera)
-            camera = cv2.VideoCapture(0)
-            analyze_image_stream_windows(camera)
+        target_fps = 30.0
+        frame_duration = 1.0 / target_fps
+        elapsed_time = 0.033
 
-        if platform.system() == "Windows":
-            camera = cv2.VideoCapture(0)
-            analyze_image_stream_windows(camera)
+        while True:
+            start_time = time.time()
+            frame = camera.get_frame() # Get a frame from the camera
+            object_detection_results = ai.track_objects(frame) # Get objects in picture
+
+            # If something was detected...
+            if object_detection_results[0].boxes is not None:
+                frame = annotate_image(frame, int(1 / elapsed_time), object_detection_results) # Annotate video feed
+                update_targeting(frame, object_detection_results) # Update targeting
+
+                # Fire on target
+                if config["Turret"]["AiTurretControl"]:
+                    command_turret(targeting.get_best_targeting_instruction(config))
+            else:
+                frame = Imaging.draw_turret_status(frame, current_pan_angle, current_tilt_angle, int(1 / elapsed_time), config["ObjectDetection"]["ValidTargetLabels"])
             
-    except KeyboardInterrupt:
-        return
+            cv2.imshow('Moosinator Cam', frame)
 
-main()
+            # Sleep to maintain the target frame rate
+            elapsed_time = time.time() - start_time
+            time_to_sleep = max(0, frame_duration - elapsed_time)
+            time.sleep(time_to_sleep)
+
+    except KeyboardInterrupt:
+        print("Interrupted by user.")
+    finally:
+        camera.release()
+
+if __name__ == "__main__":
+    main()

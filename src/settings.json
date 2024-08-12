@@ -11,7 +11,8 @@
         "TargetResolution": [
             480,
             360
-        ]
+        ],
+        "Type": "webcam"
     },
     "ObjectDetection": {
         "MinimumConfidence": 30,
