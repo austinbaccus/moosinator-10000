@@ -1,6 +1,7 @@
-import arduino
+import serial
 import time
 import glob
+import threading
 
 class ArduinoSerial:
     def __init__(self, baudrate=9600):
@@ -9,7 +10,7 @@ class ArduinoSerial:
 
         if port is not None:
             try:
-                self.ser = arduino.Serial(port, baudrate, timeout=1)
+                self.ser = serial.arduino.Serial(port, baudrate, timeout=1)
                 time.sleep(2) # Wait for the connection to initialize
             except:
                 print ("Could not connect to Arduino")
@@ -19,6 +20,18 @@ class ArduinoSerial:
     def send(self, data):
         if self.ser is not None:
             self.ser.write((data + '\n').encode())
+
+    def read_from_arduino(self, read_messages_from_arduino):
+        while True:
+            if self.ser.in_waiting > 0:
+                line = self.ser.readline().decode('utf-8').rstrip()
+                if read_messages_from_arduino:
+                    print("Message from Arduino: ", line)
+
+    # Function to run the reading in a separate thread
+    def start_reading_thread(self, read_messages_from_arduino = False):
+        thread = threading.Thread(target=self.read_from_arduino(read_messages_from_arduino), daemon=True)
+        thread.start()
 
     def find_arduino_port(self):
         # List all available serial ports
@@ -32,7 +45,7 @@ class ArduinoSerial:
             try:
                 # Try to open each port
                 print ("Listening for Arduino on port {}".format(port))
-                ser = arduino.Serial(port, baudrate=9600, timeout=1)
+                ser = serial.Serial(port, baudrate=9600, timeout=1)
                 ser.flush()
                 
                 # Read a line from the port. Sleep for 3 seconds (before and after) to give the Arduino time to send a message.

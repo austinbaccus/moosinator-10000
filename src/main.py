@@ -78,6 +78,12 @@ def main():
         camera = Camera(CameraType.WEBCAM, config)
     elif config["Image"]["Type"] == "picamera":
         camera = Camera(CameraType.PICAMERA, config)
+
+    # Listen to messages from the Arduino on a spearate thread
+    try:
+        arduinoSerial.start_reading_thread(config["Debug"]["PrintMessagesFromArduino"])
+    except Exception as e:
+        print (e)
     
     try:
         target_fps = 30.0

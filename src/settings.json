@@ -33,6 +33,7 @@
         "PrintMqttMessageSent": false,
         "PrintTargetingBuffer": false,
         "PrintFilteredTargetingBuffer": false,
-        "PrintTurretCommand": true
+        "PrintTurretCommand": true,
+        "PrintMessagesFromArduino": true
     }
 }
