@@ -8,7 +8,7 @@ from targeting import Targeting
 import targeting as TargetAcq
 import image as Imaging
 from camera import Camera, CameraType
-from serial import ArduinoSerial
+from arduino import ArduinoSerial
 
 #if platform.system() == "Linux":
 #    import picamera

@@ -1,7 +1,7 @@
 import io
 import base64
 import cv2
-import picamera
+#import picamera
 import image as Imaging
 from enum import Enum
 
