@@ -1,5 +1,6 @@
 import serial
 import time
+import glob
 
 class ArduinoSerial:
     def __init__(self, baudrate=9600):
@@ -22,9 +23,9 @@ class ArduinoSerial:
 
     def find_arduino_port(self):
         # List all available serial ports
-        ports = serial.tools.list_ports.comports()
+        ports = glob.glob('/dev/tty[A-Za-z]*')
         print ("Total ports: {}".format(len(ports)))
-        
+
         for port in ports:
             try:
                 # Try to open each port
@@ -33,12 +34,13 @@ class ArduinoSerial:
                 ser.flush()
                 
                 # Read a line from the port
+                ser.write(b'\n')  # Send a newline to prompt the Arduino
                 if ser.in_waiting > 0:
                     line = ser.readline().decode('utf-8').strip()
-                    if "Message from the Moosinator Arduino" in line:
-                        print(f"Arduino found on port: {port.device}")
+                    if line == "Message from the Moosinator Arduino":
+                        print(f"Arduino found on port: {port}")
                         ser.close()
-                        return port.device
+                        return port
                     
                 ser.close()
             except (OSError, serial.SerialException):
