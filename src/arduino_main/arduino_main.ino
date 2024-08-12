@@ -34,6 +34,12 @@ void loop()
       tilt(turretRotationInstructions[1]);
     }
   }
+
+  Serial.print("Message from the Moosinator Arduino: (");
+  Serial.print(turretRotationInstructions[0]);
+  Serial.print(",");
+  Serial.print(turretRotationInstructions[1]);
+  Serial.println(")");
 }
 
 int* parseRotationDegrees(String data)
@@ -53,10 +59,6 @@ int* parseRotationDegrees(String data)
 
   turretRotationInstructions[0] = max(min(desiredPanDegree, 180), 0);
   turretRotationInstructions[1] = max(min(desiredTiltDegree, 180), 0);
-  
-  Serial.print(turretRotationInstructions[0]);
-  Serial.print(",");
-  Serial.println(turretRotationInstructions[1]);
 }
 
 void pan(int angle)
