@@ -37,7 +37,7 @@ class ArduinoSerial:
                 ser.write(b'\n')  # Send a newline to prompt the Arduino
                 if ser.in_waiting > 0:
                     line = ser.readline().decode('utf-8').strip()
-                    if line == "Message from the Moosinator Arduino":
+                    if "Message from the Moosinator Arduino" in line:
                         print(f"Arduino found on port: {port}")
                         ser.close()
                         return port
