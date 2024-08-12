@@ -7,7 +7,7 @@
     },
     "Image": {
         "RotateIRImage": 180,
-        "TargetFPS": 50,
+        "TargetFPS": 30,
         "TargetResolution": [
             480,
             360
@@ -21,7 +21,7 @@
         ]
     },
     "Turret": {
-        "AiTurretControl": false,
+        "AiTurretControl": true,
         "HumanTurretControl": false,
         "TurretPanBoundNegative": 0,
         "TurretPanBoundPositive": 180,
@@ -32,6 +32,7 @@
         "PrintMqttFPS": false,
         "PrintMqttMessageSent": false,
         "PrintTargetingBuffer": false,
-        "PrintFilteredTargetingBuffer": false
+        "PrintFilteredTargetingBuffer": false,
+        "PrintTurretCommand": true
     }
 }

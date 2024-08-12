@@ -58,12 +58,19 @@ def update_targeting(image, object_detection_results):
 
 def command_turret(best_guess_targeting_instruction):
     if best_guess_targeting_instruction is None:
+        if config["Debug"]["PrintTurretCommand"]:
+            print ("turret command: None")
         return
+    
     global current_pan_angle
     global current_tilt_angle
     current_pan_angle = max(min(current_pan_angle + int(best_guess_targeting_instruction[1]), 150), 60)
     current_tilt_angle = max(min(current_tilt_angle + int(best_guess_targeting_instruction[0]), 180), 100)
-    arduinoSerial.send("rotate ({},{})".format(int(best_guess_targeting_instruction[0]), int(best_guess_targeting_instruction[1])))
+
+    turret_command = "rotate ({},{})".format(int(best_guess_targeting_instruction[0]), int(best_guess_targeting_instruction[1]))
+    arduinoSerial.send(turret_command)
+    if config["Debug"]["PrintTurretCommand"]:
+        print ("turret command: {}".format(turret_command))
 
 def main():
     camera = None
@@ -94,6 +101,9 @@ def main():
                 frame = Imaging.draw_turret_status(frame, current_pan_angle, current_tilt_angle, int(1 / elapsed_time), config["ObjectDetection"]["ValidTargetLabels"])
             
             cv2.imshow('Moosinator Cam', frame)
+            k = cv2.waitKey(1)
+            if k != -1:
+                break
 
             # Sleep to maintain the target frame rate
             elapsed_time = time.time() - start_time
