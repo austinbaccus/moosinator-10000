@@ -90,13 +90,16 @@ class Targeting:
         if len(self.targeting_instructions_buffer) > 5:
             self.targeting_instructions_buffer.pop(0)
 
-    def get_best_targeting_instruction(self, config):
+    def get_best_targeting_instruction(self, config, current_pan_angle, current_tilt_angle):
         # This method returns the best-guess horizontal and vertical degrees the turret needs to rotate in order to be on target.
         # Why not just return the last set of targeting instructions? Good question. Because sometimes the AI
         # object detection gets it really, really wrong and the coordinates are way off from where you actually want the turret to look at. 
         # Here's an example of a buffer with an outlier targeting instruction: [(3, 24), (3, 24), (3, 24), (3, 24), (3, 24), (3, 24), (3, 24), (3, 24), (-47, 11), (3, 24)]
         # If the turret rotated for each instruction, it would (infrequently) encounter those outliers and be all herky-jerky.
         # So with that in mind, this method's job is to remove targeting instruction outliers from the buffer, and return the average of the remaining instruction tuples.
+
+        # If no targets are found, reset turret to (90, 90)
+        default_value = ((90 - current_pan_angle, 90 - current_tilt_angle))
 
         if config["Debug"]["PrintTargetingBuffer"]:
             print(self.targeting_instructions_buffer)
@@ -113,7 +116,7 @@ class Targeting:
             print(valid_tuples)
 
         if len(valid_tuples) < 3:
-            return None
+            return default_value
         
         first_values = [x[0] for x in valid_tuples]
         second_values = [x[1] for x in valid_tuples]
@@ -139,7 +142,7 @@ class Targeting:
         
         first_values = [x[0] for x in filtered_tuples]
         second_values = [x[1] for x in filtered_tuples]
-        return (int(np.mean(first_values)), int(np.mean(second_values)))
+        return (int(np.mean(first_values)/config["Turret"]["TurretDampeningFactor"]), int(np.mean(second_values)/config["Turret"]["TurretDampeningFactor"]))
     
     def get_best_target(self, valid_target_labels, crosshair_coords):
         potential_targets = []
@@ -185,7 +188,7 @@ def degrees_to_target(crosshair_coords, target):
     degrees_to_pan = int((horizontal_diff/(screen_width/2)) * camera_horizontal_fov)
     degrees_to_tilt = int((vertical_diff/(screen_height/2)) * camera_vertical_fov)
     
-    return (int(-degrees_to_pan/2), -int(degrees_to_tilt/2))
+    return (int(-degrees_to_pan), -int(degrees_to_tilt))
 
 def is_target_valid(target, config):
     if target.certainty < config["ObjectDetection"]["MinimumConfidence"]:

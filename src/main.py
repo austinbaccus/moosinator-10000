@@ -30,6 +30,7 @@ current_tilt_angle = 90
 fps_buffer = []
 start = time.time()
 track_history = defaultdict(lambda: [])
+timestamp_of_last_turret_command = time.time()
 
 def annotate_image(image, fps, object_detection_results):
     try:
@@ -53,22 +54,27 @@ def update_targeting(image, object_detection_results):
     target = targeting.get_best_target(config["ObjectDetection"]["ValidTargetLabels"], crosshair_coords)
     if target is not None:
         targeting.add_targeting_instructions_to_buffer(TargetAcq.degrees_to_target(crosshair_coords, target))
+        center = target.get_center()
+        print(f"target coords: {center}")
     else:
         targeting.add_targeting_instructions_to_buffer((None,None))
 
 def command_turret(best_guess_targeting_instruction):
+    # Don't send a bunch of turret commands at once
+    global timestamp_of_last_turret_command
+    if config["Turret"]["MinimumTimeBetweenCommands"] > time.time() - timestamp_of_last_turret_command:
+        return
+    timestamp_of_last_turret_command = time.time()
+
     if best_guess_targeting_instruction is None:
         if config["Debug"]["PrintTurretCommand"]:
             print ("turret command: None")
         return
-    
-    global current_pan_angle
-    global current_tilt_angle
-    current_pan_angle = max(min(current_pan_angle + int(best_guess_targeting_instruction[1]), 150), 60)
-    current_tilt_angle = max(min(current_tilt_angle + int(best_guess_targeting_instruction[0]), 180), 100)
 
-    turret_command = "rotate ({},{})".format(int(best_guess_targeting_instruction[0]), int(best_guess_targeting_instruction[1]))
-    arduinoSerial.send(turret_command)
+    pan_command = int(best_guess_targeting_instruction[0])
+    tilt_command = int(best_guess_targeting_instruction[1])
+    turret_command = "rotate ({},{})".format(pan_command, tilt_command)
+    arduinoSerial.send_to_arduino(turret_command)
     if config["Debug"]["PrintTurretCommand"]:
         print ("turret command: {}".format(turret_command))
 
@@ -89,11 +95,26 @@ def main():
         target_fps = 30.0
         frame_duration = 1.0 / target_fps
         elapsed_time = 0.033
+        global current_pan_angle
+        global current_tilt_angle
 
         while True:
+            if arduinoSerial.handshake_completed is False:
+                pass
+            
             start_time = time.time()
             frame = camera.get_frame() # Get a frame from the camera
             object_detection_results = ai.track_objects(frame) # Get objects in picture
+
+            # Get servo statuses from Arduino
+            servoStatus = arduinoSerial.get_message()
+            if "servo status" in servoStatus:
+                start = servoStatus.find('(') + 1
+                end = servoStatus.find(')')
+                numbers_str = servoStatus[start:end]
+                x_str, y_str = numbers_str.split(',')
+                current_pan_angle = int(x_str)
+                current_tilt_angle = int(y_str)
 
             # If something was detected...
             if object_detection_results[0].boxes is not None:
@@ -102,7 +123,7 @@ def main():
 
                 # Fire on target
                 if config["Turret"]["AiTurretControl"]:
-                    command_turret(targeting.get_best_targeting_instruction(config))
+                    command_turret(targeting.get_best_targeting_instruction(config, current_pan_angle, current_tilt_angle))
             else:
                 frame = Imaging.draw_turret_status(frame, current_pan_angle, current_tilt_angle, int(1 / elapsed_time), config["ObjectDetection"]["ValidTargetLabels"])
             

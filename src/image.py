@@ -22,16 +22,15 @@ def rotate_image(image, rotation_value):
 
 def draw_boxes(image, objects, width, config):
     for object in objects:
+        text_x_pos = min(width, object.x1+10)
+        text_y_pos = max(0, object.y2-10)
+        center = object.get_center()
         if Targeting.is_target_valid(object, config):
-            text_x_pos = min(width, object.x1+10)
-            text_y_pos = max(0, object.y2-10)
             cv2.rectangle(img=image, pt1=(object.x1, object.y1), pt2=(object.x2, object.y2), color=(0,0,200), thickness=2)
-            cv2.putText(img=image, text=f"{object.label} {object.certainty}%", org=(text_x_pos, text_y_pos), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,200), thickness=1)
+            cv2.putText(img=image, text=f"{object.label} {object.certainty}% {center}", org=(text_x_pos, text_y_pos), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,200), thickness=1)
         else:
-            text_x_pos = min(width, object.x1+10)
-            text_y_pos = max(0, object.y2-10)
             cv2.rectangle(img=image, pt1=(object.x1, object.y1), pt2=(object.x2, object.y2), color=(255,255,0), thickness=2)
-            cv2.putText(img=image, text=f"{object.label} {object.certainty}%", org=(text_x_pos, text_y_pos), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255,255,0), thickness=1)
+            cv2.putText(img=image, text=f"{object.label} {object.certainty}% {center}", org=(text_x_pos, text_y_pos), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255,255,0), thickness=1)
     return image
 
 def draw_crosshair(image, width, height):

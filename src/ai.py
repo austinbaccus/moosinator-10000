@@ -40,7 +40,48 @@ class AI_YOLOv8:
         return self.model(image)
     
     def track_objects(self, image):
-        return self.model.track(image, persist=True, tracker="bytetrack.yaml")
+        return self.model.track(image, persist=True, tracker="bytetrack.yaml", verbose=False)
     
     def get_name(self):
         return "yolov8"
+    
+class AI_Hailo_YOLOv8:
+    def __init__(self, model_path):
+        # Load the Hailo NPU model
+        self.hef = HailoRT.Hef(model_path)
+        self.vdevice = HailoRT.VDevice()
+        self.vdevice.configure(self.hef)
+
+        # Get the network parameters
+        self.network_group = self.vdevice.get_network_group()
+        self.input_vstream = self.network_group.get_input_vstream()
+        self.output_vstream = self.network_group.get_output_vstream()
+
+    def get_objects(self, image):
+        # Preprocess image
+        input_data = self.preprocess(image)
+
+        # Perform inference
+        self.network_group.send(input_vstream, input_data)
+        output = self.network_group.receive(self.output_vstream)
+
+        # Post-process the results
+        results = self.postprocess(output)
+        return results
+
+    def preprocess(self, image):
+        # Convert image to numpy array and resize it according to your model's input shape
+        input_image = np.array(image.resize((640, 640))) / 255.0
+        input_image = input_image.astype(np.float32)
+        input_image = np.expand_dims(input_image, axis=0)  # Add batch dimension
+        return input_image
+
+    def postprocess(self, output):
+        # Implement your post-processing logic to decode the NPU output into meaningful detections
+        # This will vary depending on your model
+        # For example, you could use non-maximum suppression (NMS) for YOLO
+        detections = ...  # decode the output
+        return detections
+
+    def get_name(self):
+        return "hailo_yolov8"

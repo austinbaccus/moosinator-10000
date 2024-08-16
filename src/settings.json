@@ -15,7 +15,7 @@
         "Type": "webcam"
     },
     "ObjectDetection": {
-        "MinimumConfidence": 30,
+        "MinimumConfidence": 80,
         "ValidTargetLabels": [
             "person"
         ]
@@ -26,7 +26,9 @@
         "TurretPanBoundNegative": 0,
         "TurretPanBoundPositive": 180,
         "TurretTiltBoundNegative": 0,
-        "TurretTiltBoundPositive": 180
+        "TurretTiltBoundPositive": 180,
+        "MinimumTimeBetweenCommands": 0.15,
+        "TurretDampeningFactor": 4
     },
     "Debug": {
         "PrintMqttFPS": false,
