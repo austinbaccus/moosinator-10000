@@ -27,8 +27,8 @@
         "TurretPanBoundPositive": 180,
         "TurretTiltBoundNegative": 0,
         "TurretTiltBoundPositive": 180,
-        "MinimumTimeBetweenCommands": 0.15,
-        "TurretDampeningFactor": 4
+        "MinimumTimeBetweenCommands": 0.5,
+        "TurretDampeningFactor": 1.4
     },
     "Debug": {
         "PrintMqttFPS": false,

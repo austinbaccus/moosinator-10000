@@ -1,9 +1,9 @@
-#include <Servo.h>
+#include <ServoEasing.hpp>
 
 const unsigned int MAX_MESSAGE_LENGTH = 32;
 
-Servo servoPan;
-Servo servoTilt;
+ServoEasing servoPan;
+ServoEasing servoTilt;
 const int servoPanPin = 6;
 const int servoTiltPin = 5;
 bool handshakeComplete = false;
@@ -14,6 +14,8 @@ void setup()
 {
   servoPan.attach(servoPanPin);
   servoTilt.attach(servoTiltPin);
+  servoPan.setEasingType(EASE_CUBIC_IN_OUT);
+  servoTilt.setEasingType(EASE_CUBIC_IN_OUT);
   Serial.begin(9600);
   pan(90);
   tilt(90);
@@ -62,7 +64,7 @@ void loop()
     }
   }
 
-  delay(10);
+  delay(100);
 }
 
 int* parseRotationDegrees(String data)
@@ -91,10 +93,10 @@ int* parseRotationDegrees(String data)
 
 void pan(int angle)
 {
-  servoPan.write(max(min(angle, 180), 0));
+  servoPan.startEaseTo(max(min(angle, 180), 0), 100);
 }
 
 void tilt(int angle)
 {
-  servoTilt.write(max(min(angle, 180), 0));
+  servoTilt.startEaseTo(max(min(angle, 180), 0), 100);
 }
